@@ -12,6 +12,7 @@ Remarker
 A command line tool for generating `Remark.js <https://github.com/gnab/remark>`_ presentations from markdown files.
 
 License: MIT
+
 Documentation: https://remarker.readthedocs.org.
 
 Usage
