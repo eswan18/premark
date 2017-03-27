@@ -19,6 +19,7 @@ with open(path.join(here, 'HISTORY.rst'), encoding='utf-8') as history_file:
 requirements = [
     # TODO: put package requirements here
     'click',
+    'jinja2',
 ]
 
 test_requirements = [
@@ -37,7 +38,7 @@ setup(
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     entry_points={
         'console_scripts':[
-            'remarker=remarker.cli:cli',
+            'remarker=remarker.cli:remarker',
             ],
         },
     include_package_data=True,
