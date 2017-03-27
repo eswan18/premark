@@ -1,5 +1,6 @@
 import click
 import pkg_resources
+import sys
 from . import presentation
 
 DEFAULT_HTML_FILE = pkg_resources.resource_filename('remarker', 'templates/default.html')
@@ -14,30 +15,27 @@ def loadfile(filename):
         default=DEFAULT_HTML_FILE)
 @click.option('--css-file', type=click.Path(exists=True),
         default=DEFAULT_CSS_FILE)
-@click.option('--output-file', '-o', type=click.Path(),
-        default='presentaiton.html')
+@click.option('--output-file', '-o', type=click.File('wb'), default=sys.stdout)
 @click.option('--title', '-t', default='Presentation')
 @click.option('--verbose', '-v', is_flag=True)
 @click.command()
 def remarker(slides_markdown_file, html_template, css_file, output_file,
         title, verbose):
     if verbose:
-        click.echo('Input:')
-        click.echo('slides_markdown_file: {}'.format(slides_markdown_file))
-        click.echo('html-template: {}'.format(html_template))
-        click.echo('css-file: {}'.format(css_file))
-        click.echo('Output file: {}'.format(output_file))
-
+        click.echo('Input:', err=True)
+        click.echo('slides_markdown_file: {}'.format(slides_markdown_file),
+                err=True)
+        click.echo('html-template: {}'.format(html_template), err=True)
+        click.echo('css-file: {}'.format(css_file), err=True)
+        click.echo('Output file: {}'.format(output_file), err=True)
 
     template_html = loadfile(html_template)
     slide_markdown = loadfile(slides_markdown_file)
     stylesheet_html = loadfile(css_file)
 
-    click.echo(stylesheet_html)
-    with open(output_file, 'w') as outfile:
-        output_html = presentation.generate_html(template_html, slide_markdown,
+    output_html = presentation.generate_html(template_html, slide_markdown,
                 stylesheet_html, title=title)
-        outfile.write(output_html)
+    output_file.write(output_html)
 
 if __name__ == '__main__':
     remarker()
