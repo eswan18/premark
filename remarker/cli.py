@@ -15,7 +15,7 @@ def loadfile(filename):
         default=DEFAULT_HTML_FILE)
 @click.option('--css-file', type=click.Path(exists=True),
         default=DEFAULT_CSS_FILE)
-@click.option('--output-file', '-o', type=click.File('wb'), default=sys.stdout)
+@click.option('--output-file', '-o', type=click.File('w'), default=sys.stdout)
 @click.option('--title', '-t', default='Presentation')
 @click.option('--verbose', '-v', is_flag=True)
 @click.command()
