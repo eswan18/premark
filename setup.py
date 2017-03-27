@@ -42,6 +42,9 @@ setup(
             ],
         },
     include_package_data=True,
+    package_data = {
+        'remarker': ['templates/*'],
+        },
     install_requires=requirements,
     license="MIT",
     classifiers=[
