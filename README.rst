@@ -9,12 +9,17 @@ Remarker
         :target: https://pypi.python.org/pypi/remarker
 
 
-A command line tool to generate Remark.js presentations from markdown files.
+A command line tool for generating Remark.js presentations from markdown files.
 
 * Free software: MIT license
 * Documentation: (COMING SOON!) https://remarker.readthedocs.org.
 
-Features
---------
+Usage
+-----
 
-* TODO
+See ``remarker --help``
+
+Usage Example
+-------------
+
+``remarker -o presentation.html slides.md``
