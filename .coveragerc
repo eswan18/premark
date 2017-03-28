@@ -1,0 +1,2 @@
+[report]
+omit = remarker/_version.py
