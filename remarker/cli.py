@@ -38,5 +38,5 @@ def remarker(slides_markdown_file, html_template, css_file, output_file,
                 stylesheet_html, title=title)
     output_file.write(output_html)
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     remarker()
