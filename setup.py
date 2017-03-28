@@ -62,4 +62,7 @@ setup(
     ],
     test_suite='tests',
     tests_require=test_requirements,
+    extras_require={
+        'testing': test_requirements,
+        }
 )
