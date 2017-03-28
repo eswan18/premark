@@ -1,3 +1,5 @@
+JavaScript: true
+Python: true
 exclude_paths:
 - versioneer.py
 - "**/_version.py"
