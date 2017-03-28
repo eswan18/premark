@@ -10,6 +10,8 @@ engines:
       - javascript
       - python
       - php
+    exclude_paths:
+        - 
   fixme:
     enabled: true
   radon:
@@ -29,5 +31,5 @@ exclude_paths:
 JavaScript: true
 Python: true
 exclude_paths:
-- versioneer.py
-- "**/_version.py"
+- "versioneer.py"
+- "remarker/_version.py"
