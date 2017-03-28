@@ -8,7 +8,9 @@ python:
 # command to install dependencies
 install:
   - "pip install --upgrade pip"
+  - "pip --version"
   - "pip install .[testing]"
-  - "pip install -r requirements.txt"
+  - "pip install pytest-cov coveralls"
 # command to run tests
-script: python setup.py test
+script: python setup.py test --addopts "-vrs --cov remarker"
+after_success: coveralls
