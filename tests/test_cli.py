@@ -37,6 +37,16 @@ class TestRemarkerCLI(object):
                 'test_output.html', self.data_files['default_slides'],])
             assert filecmp.cmp('test_output.html', self.data_files['default_output'])
 
+    def test_cli_with_verbose(self):
+        with self.runner.isolated_filesystem():
+            result = self.runner.invoke(cli.remarker, ['--verbose', '-o',
+                'test_output.html', self.data_files['default_slides'],])
+            assert filecmp.cmp('test_output.html', self.data_files['default_output'])
+            assert 'slides_markdown_file: ' in result.output
+            assert 'html-template: ' in result.output
+            assert 'css-file: ' in result.output
+            assert 'Output file: <unopened file ' in result.output
+
     def test_cli_with_custom_css(self):
         with self.runner.isolated_filesystem():
             result = self.runner.invoke(cli.remarker, ['-o',
@@ -44,3 +54,5 @@ class TestRemarkerCLI(object):
                 '--title', 'testing',
                 self.data_files['default_slides'],])
             assert filecmp.cmp('test_output.html', self.data_files['with_custom_css'])
+
+
