@@ -18,6 +18,7 @@ def loadfile(filename):
 @click.option('--output-file', '-o', type=click.File('w'), default=sys.stdout)
 @click.option('--title', '-t', default='Presentation')
 @click.option('--verbose', '-v', is_flag=True)
+@click.version_option()
 @click.command()
 def remarker(slides_markdown_file, html_template, css_file, output_file,
         title, verbose):
