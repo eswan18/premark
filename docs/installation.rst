@@ -2,11 +2,14 @@
 Installation
 ============
 
-At the command line::
+**Recommended:** Install with ``pipsi`` in order to use ``remarker`` as a standalone command::
 
-    $ pip install Remarker
+First, `install pipsi <https://github.com/mitsuhiko/pipsi>`_.
 
-Or, if you have virtualenvwrapper installed::
+Then:
 
-    $ mkvirtualenv Remarker
+    $ pipsi install Remarker
+    
+Or, to install in your active Python environment::
+
     $ pip install Remarker
