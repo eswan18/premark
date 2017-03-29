@@ -6,7 +6,7 @@ Installation
 
 First, `install pipsi <https://github.com/mitsuhiko/pipsi>`_.
 
-Then:
+Then::
 
     $ pipsi install Remarker
     
