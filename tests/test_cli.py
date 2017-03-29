@@ -1,6 +1,7 @@
 import click
 import filecmp
 import os
+import tempfile
 from click.testing import CliRunner
 from remarker import cli
 
@@ -17,6 +18,8 @@ class TestRemarkerCLI(object):
                 'custom_css': get_data_filename('custom.css'),
                 'default_output': get_data_filename('default_output.html'),
                 'default_slides': get_data_filename('default_slides.md'),
+                'unicode_output': get_data_filename('unicode_output.html'),
+                'unicode_slides': get_data_filename('unicode_slides.md'),
                 'with_custom_css': get_data_filename('with_custom_css.html'),
                 }
         self.runner = CliRunner()
@@ -33,15 +36,24 @@ class TestRemarkerCLI(object):
 
     def test_cli_with_default_css(self):
         with self.runner.isolated_filesystem():
+            output_file = tempfile.mktemp(dir='.')
             result = self.runner.invoke(cli.remarker, ['-o',
-                'test_output.html', self.data_files['default_slides'],])
-            assert filecmp.cmp('test_output.html', self.data_files['default_output'])
+                output_file, self.data_files['default_slides'],])
+            assert filecmp.cmp(output_file, self.data_files['default_output'])
+
+    def test_cli_with_unicode_slides(self):
+        with self.runner.isolated_filesystem():
+            output_file = tempfile.mktemp(dir='.')
+            result = self.runner.invoke(cli.remarker, ['-o',
+                output_file, self.data_files['unicode_slides'],])
+            assert filecmp.cmp(output_file, self.data_files['unicode_output'])
 
     def test_cli_with_verbose(self):
         with self.runner.isolated_filesystem():
+            output_file = tempfile.mktemp(dir='.')
             result = self.runner.invoke(cli.remarker, ['--verbose', '-o',
-                'test_output.html', self.data_files['default_slides'],])
-            assert filecmp.cmp('test_output.html', self.data_files['default_output'])
+                output_file, self.data_files['default_slides'],])
+            assert filecmp.cmp(output_file, self.data_files['default_output'])
             assert 'slides_markdown_file: ' in result.output
             assert 'html-template: ' in result.output
             assert 'css-file: ' in result.output
@@ -49,10 +61,11 @@ class TestRemarkerCLI(object):
 
     def test_cli_with_custom_css(self):
         with self.runner.isolated_filesystem():
+            output_file = tempfile.mktemp(dir='.')
             result = self.runner.invoke(cli.remarker, ['-o',
-                'test_output.html', '--css-file', self.data_files['custom_css'],
+                output_file, '--css-file', self.data_files['custom_css'],
                 '--title', 'testing',
                 self.data_files['default_slides'],])
-            assert filecmp.cmp('test_output.html', self.data_files['with_custom_css'])
+            assert filecmp.cmp(output_file, self.data_files['with_custom_css'])
 
 

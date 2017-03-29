@@ -1,4 +1,5 @@
 import click
+import codecs
 import pkg_resources
 import sys
 from . import presentation
@@ -7,7 +8,7 @@ DEFAULT_HTML_FILE = pkg_resources.resource_filename('remarker', 'templates/defau
 DEFAULT_CSS_FILE = pkg_resources.resource_filename('remarker', 'templates/default.css')
 
 def loadfile(filename):
-    with open(filename) as infile:
+    with codecs.open(filename, encoding='utf8') as infile:
         return infile.read()
 
 @click.argument('slides_markdown_file', type=click.Path(exists=True))
@@ -15,7 +16,7 @@ def loadfile(filename):
         default=DEFAULT_HTML_FILE)
 @click.option('--css-file', type=click.Path(exists=True),
         default=DEFAULT_CSS_FILE)
-@click.option('--output-file', '-o', type=click.File('w'), default=sys.stdout)
+@click.option('--output-file', '-o', type=click.File('w', encoding='utf8'), default=sys.stdout)
 @click.option('--title', '-t', default='Presentation')
 @click.option('--verbose', '-v', is_flag=True)
 @click.version_option()
