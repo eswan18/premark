@@ -20,9 +20,37 @@ Documentation: https://remarker.readthedocs.org.
 Usage
 -----
 
-See ``remarker --help``
+``remarker --help``
 
-Usage Example
--------------
+.. code-block:: none
 
-``remarker -o presentation.html slides.md``
+  Usage: remarker [OPTIONS] SLIDES_MARKDOWN_FILE
+  
+    Generate a Remark.js HTML presentation from input Markdown and optional
+    custom CSS.
+  
+  Options:
+    --version                   Show the version and exit.
+    -v, --verbose               Output debugging info.
+    -t, --title TEXT            HTML title of the presentation.
+    -o, --output-file FILENAME  Write the output to a file instead of STDOUT.
+    -c, --css-file PATH         Custom CSS to be included inline.
+    --html-template PATH        Jinja2 template file for the presentation.
+    --help                      Show this message and exit.
+
+
+Usage Examples
+--------------
+
+Generate ``presentation.html`` from Markdown in ``slides.md``:
+
+.. code-block:: shell
+
+  remarker -o presentation.html slides.md
+
+Generate ``presentation.html`` from Markdown in ``slides.md`` and CSS in
+``style.css``:
+
+.. code-block:: shell
+
+  remarker -o presentation.html -c style.css slides.md

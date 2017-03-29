@@ -13,16 +13,22 @@ def loadfile(filename):
 
 @click.argument('slides_markdown_file', type=click.Path(exists=True))
 @click.option('--html-template', type=click.Path(exists=True),
-        default=DEFAULT_HTML_FILE)
-@click.option('--css-file', type=click.Path(exists=True),
-        default=DEFAULT_CSS_FILE)
-@click.option('--output-file', '-o', type=click.File('w', encoding='utf8'), default=sys.stdout)
-@click.option('--title', '-t', default='Presentation')
-@click.option('--verbose', '-v', is_flag=True)
+        default=DEFAULT_HTML_FILE,
+        help='Jinja2 template file for the presentation.')
+@click.option('--css-file', '-c', type=click.Path(exists=True),
+        default=DEFAULT_CSS_FILE, help='Custom CSS to be included inline.')
+@click.option('--output-file', '-o', type=click.File('w', encoding='utf8'),
+        default=sys.stdout,
+        help='Write the output to a file instead of STDOUT.')
+@click.option('--title', '-t', default='Presentation',
+        help='HTML title of the presentation.')
+@click.option('--verbose', '-v', is_flag=True, help='Output debugging info.')
 @click.version_option()
 @click.command()
 def remarker(slides_markdown_file, html_template, css_file, output_file,
         title, verbose):
+    """ Generate a Remark.js HTML presentation from input Markdown and
+    optional custom CSS. """
     if verbose:
         click.echo('Input:', err=True)
         click.echo('slides_markdown_file: {}'.format(slides_markdown_file),
