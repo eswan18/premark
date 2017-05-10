@@ -2,7 +2,7 @@ from jinja2 import Template
 
 DEFAULT_JAVASCRIPT = """
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-<script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false});</script>"""
+<script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""
 
 def generate_html(template_html, slide_markdown, stylesheet_html, title=None):
     """ Generate HTML for a Reveal.js presentation given a template_html,
