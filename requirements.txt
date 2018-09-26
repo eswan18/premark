@@ -4,6 +4,6 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-click==6.7
+click==7.0
 jinja2==2.9.6
 markupsafe==1.0           # via jinja2
