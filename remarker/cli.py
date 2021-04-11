@@ -5,7 +5,7 @@ from typing import TextIO
 import click
 import codecs
 
-from . import presentation
+from .presentation import generate_html, slides_from_path
 
 DEFAULT_HTML_FILE = pkg_resources.resource_filename(
     "remarker", "templates/default.html"
@@ -20,7 +20,7 @@ def loadfile(filename: str):
 
 @click.argument(
     "slide-source",
-    type=click.File("rt"),
+    type=click.Path(exists=True, file_okay=True, dir_okay=True),
 )
 @click.option(
     "--html-template",
@@ -49,7 +49,7 @@ def loadfile(filename: str):
 @click.version_option()
 @click.command()
 def remarker(
-    slide_source: TextIO,
+    slide_source: str,
     html_template: str,
     css_file: str,
     output_file: TextIO,
@@ -66,11 +66,15 @@ def remarker(
         click.echo("Output file: {}".format(output_file), err=True)
 
     template_html = loadfile(html_template)
-    slide_markdown = slide_source.read()
     stylesheet_html = loadfile(css_file)
 
-    output_html = presentation.generate_html(
-        template_html, slide_markdown, stylesheet_html, title=title
+    # Users can pass a single slides markdown file or a directory of several "sections"
+    # to be stitched together.
+    slide_md = slides_from_path(slide_source)
+    print(f'slide_md : {slide_md}')
+
+    output_html = generate_html(
+        template_html, slide_md, stylesheet_html, title=title
     )
     output_file.write(output_html)
 

@@ -19,6 +19,7 @@ with open(path.join(here, 'HISTORY.rst'), encoding='utf-8') as history_file:
 requires = [
     'click',
     'jinja2',
+    'pyyaml',
 ]
 
 lint_requires =  ['flake8']
