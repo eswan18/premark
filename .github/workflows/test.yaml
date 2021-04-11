@@ -1,0 +1,21 @@
+name: CI
+
+on: push
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.5"
+      - name: Install Package
+        run:
+          pip install -e .[lint]
+      - name: Run flake8
+        run:
+          flake8 remarker
