@@ -55,6 +55,8 @@ class TestRemarkerCLI(object):
             "unicode_output": get_data_filename("unicode_output.html"),
             "unicode_slides": get_data_filename("unicode_slides.md"),
             "with_custom_css": get_data_filename("with_custom_css.html"),
+            "sections_dir": get_data_filename("sections"),
+            "section_output": get_data_filename("section_output.html"),
         }
         self.runner = CliRunner()
 
@@ -124,7 +126,6 @@ class TestRemarkerCLI(object):
 
     def test_cli_with_custom_css(self):
         with self.runner.isolated_filesystem():
-            # output_file = tempfile.mktemp(dir=".")
             with NamedTemporaryFile(dir=".") as output_file:
                 _ = self.runner.invoke(
                     cli.remarker,
@@ -141,4 +142,39 @@ class TestRemarkerCLI(object):
                 assert_same_contents(
                     output_file.name,
                     self.data_files["with_custom_css"]
+                )
+
+    def test_cli_slide_sections(self):
+        with self.runner.isolated_filesystem():
+            with NamedTemporaryFile(dir=".") as output_file:
+                _ = self.runner.invoke(
+                    cli.remarker,
+                    [
+                        "-o",
+                        output_file.name,
+                        self.data_files["sections_dir"],
+                    ],
+                )
+                assert_same_contents(
+                    output_file.name,
+                    self.data_files["section_output"]
+                )
+
+
+    def test_cli_alternative_slide_sections(self):
+        with self.runner.isolated_filesystem():
+            with NamedTemporaryFile(dir=".") as output_file:
+                _ = self.runner.invoke(
+                    cli.remarker,
+                    [
+                        "-o",
+                        output_file.name,
+                        "--section-metafile",
+                        "alternative_sections.yaml",
+                        self.data_files["sections_dir"],
+                    ],
+                )
+                assert_same_contents(
+                    output_file.name,
+                    self.data_files["alternative_section_output"]
                 )
