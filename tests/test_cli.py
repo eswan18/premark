@@ -1,5 +1,4 @@
 import os
-import tempfile
 from tempfile import NamedTemporaryFile
 from pathlib import Path
 from typing import Union, TextIO
@@ -17,9 +16,9 @@ def assert_same_contents(
     f1: Union[TextIO, str],
     f2: Union[TextIO, str],
     strip: bool = True,
-) -> bool:
+) -> None:
     '''
-    Check if the contents of two files are identical.
+    Raise AssertionError if the contents of two files aren't identical.
 
     Parameters
     ----------
@@ -81,7 +80,10 @@ class TestRemarkerCLI(object):
                         self.data_files["default_slides"],
                     ],
                 )
-                assert_same_contents(output_file.name, self.data_files["default_output"])
+                assert_same_contents(
+                    output_file.name,
+                    self.data_files["default_output"]
+                )
 
     def test_cli_with_unicode_slides(self):
         with self.runner.isolated_filesystem():
@@ -94,7 +96,10 @@ class TestRemarkerCLI(object):
                         self.data_files["unicode_slides"],
                     ],
                 )
-                assert_same_contents(output_file.name, self.data_files["unicode_output"])
+                assert_same_contents(
+                    output_file.name,
+                    self.data_files["unicode_output"]
+                )
 
     def test_cli_with_verbose(self):
         with self.runner.isolated_filesystem():
@@ -108,7 +113,10 @@ class TestRemarkerCLI(object):
                         self.data_files["default_slides"],
                     ],
                 )
-                assert_same_contents(output_file.name, self.data_files["default_output"])
+                assert_same_contents(
+                    output_file.name,
+                    self.data_files["default_output"]
+                )
                 assert "slide-source: " in result.output
                 assert "html-template: " in result.output
                 assert "css-file: " in result.output
@@ -130,4 +138,7 @@ class TestRemarkerCLI(object):
                         self.data_files["default_slides"],
                     ],
                 )
-                assert_same_contents(output_file.name, self.data_files["with_custom_css"])
+                assert_same_contents(
+                    output_file.name,
+                    self.data_files["with_custom_css"]
+                )
