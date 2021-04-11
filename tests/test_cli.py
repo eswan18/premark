@@ -58,6 +58,9 @@ class TestRemarkerCLI(object):
             "with_custom_css": get_data_filename("with_custom_css.html"),
             "sections_dir": get_data_filename("sections"),
             "section_output": get_data_filename("section_output.html"),
+            "alternative_section_output": get_data_filename(
+                "alternative_section_output.html"
+            ),
         }
         self.runner = CliRunner()
 
