@@ -35,3 +35,22 @@ jobs:
     - name: Run mypy
       run:
         mypy remarker
+  test:
+    name: Test All
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.5", "3.6", "3.7", "3.8", "3.9"]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: Install Package
+        run:
+          pip install -e .[tests]
+      - name: Run pytest and Generate Coverage Report
+        run:
+          pytest --cov-report=xml
