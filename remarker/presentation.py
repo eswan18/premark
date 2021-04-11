@@ -4,7 +4,7 @@ from jinja2 import Template
 
 DEFAULT_JAVASCRIPT = """
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-<script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""
+<script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""  # noqa
 
 
 def generate_html(
@@ -27,4 +27,7 @@ def generate_html(
         "javascript": DEFAULT_JAVASCRIPT,
     }
     template = Template(template_html)
-    return template.render(presentation=presentation, remark=remark)
+    return template.render(
+        presentation=presentation,
+        remark=remark
+    )

@@ -20,7 +20,7 @@ def loadfile(filename: str):
 
 @click.argument(
     "slide-source",
-    type=click.File('rt'),
+    type=click.File("rt"),
 )
 @click.option(
     "--html-template",
