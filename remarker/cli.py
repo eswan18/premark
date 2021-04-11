@@ -1,7 +1,10 @@
+import sys
+from io import TextIOWrapper
+import pkg_resources
+
 import click
 import codecs
-import pkg_resources
-import sys
+
 from . import presentation
 
 DEFAULT_HTML_FILE = pkg_resources.resource_filename(
@@ -15,7 +18,10 @@ def loadfile(filename: str):
         return infile.read()
 
 
-@click.argument("slides_markdown_file", type=click.Path(exists=True))
+@click.argument(
+    "slide-source",
+    type=click.File('rt'),
+)
 @click.option(
     "--html-template",
     type=click.Path(exists=True),
@@ -43,7 +49,7 @@ def loadfile(filename: str):
 @click.version_option()
 @click.command()
 def remarker(
-    slides_markdown_file: str,
+    slide_source: TextIOWrapper,
     html_template: str,
     css_file: str,
     output_file: str,
@@ -54,13 +60,13 @@ def remarker(
     optional custom CSS."""
     if verbose:
         click.echo("Input:", err=True)
-        click.echo("slides_markdown_file: {}".format(slides_markdown_file), err=True)
+        click.echo("slide-source: {}".format(slide_source), err=True)
         click.echo("html-template: {}".format(html_template), err=True)
         click.echo("css-file: {}".format(css_file), err=True)
         click.echo("Output file: {}".format(output_file), err=True)
 
     template_html = loadfile(html_template)
-    slide_markdown = loadfile(slides_markdown_file)
+    slide_markdown = slide_source.read()
     stylesheet_html = loadfile(css_file)
 
     output_html = presentation.generate_html(
