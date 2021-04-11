@@ -1,5 +1,6 @@
 import os
 import tempfile
+from tempfile import NamedTemporaryFile
 from pathlib import Path
 from typing import Union, TextIO
 
@@ -43,12 +44,6 @@ def assert_same_contents(
         f1_contents = f1_contents.strip()
         f2_contents = f2_contents.strip()
     assert f1_contents == f2_contents
-    if True:
-        return True
-    else:
-        print(f1)
-        print(f2)
-        return False
 
 
 class TestRemarkerCLI(object):
@@ -77,61 +72,62 @@ class TestRemarkerCLI(object):
 
     def test_cli_with_default_css(self):
         with self.runner.isolated_filesystem():
-            output_file = tempfile.mktemp(dir=".")
-            _ = self.runner.invoke(
-                cli.remarker,
-                [
-                    "-o",
-                    output_file,
-                    self.data_files["default_slides"],
-                ],
-            )
-            assert_same_contents(output_file, self.data_files["default_output"])
+            with NamedTemporaryFile(dir=".") as output_file:
+                _ = self.runner.invoke(
+                    cli.remarker,
+                    [
+                        "-o",
+                        output_file.name,
+                        self.data_files["default_slides"],
+                    ],
+                )
+                assert_same_contents(output_file.name, self.data_files["default_output"])
 
     def test_cli_with_unicode_slides(self):
         with self.runner.isolated_filesystem():
-            output_file = tempfile.mktemp(dir=".")
-            _ = self.runner.invoke(
-                cli.remarker,
-                [
-                    "-o",
-                    output_file,
-                    self.data_files["unicode_slides"],
-                ],
-            )
-            assert_same_contents(output_file, self.data_files["unicode_output"])
+            with NamedTemporaryFile(dir=".") as output_file:
+                _ = self.runner.invoke(
+                    cli.remarker,
+                    [
+                        "-o",
+                        output_file.name,
+                        self.data_files["unicode_slides"],
+                    ],
+                )
+                assert_same_contents(output_file.name, self.data_files["unicode_output"])
 
     def test_cli_with_verbose(self):
         with self.runner.isolated_filesystem():
-            output_file = tempfile.mktemp(dir=".")
-            result = self.runner.invoke(
-                cli.remarker,
-                [
-                    "--verbose",
-                    "-o",
-                    output_file,
-                    self.data_files["default_slides"],
-                ],
-            )
-            assert_same_contents(output_file, self.data_files["default_output"])
-            assert "slide-source: " in result.output
-            assert "html-template: " in result.output
-            assert "css-file: " in result.output
-            assert "Output file: <unopened file " in result.output
+            with NamedTemporaryFile(dir=".") as output_file:
+                result = self.runner.invoke(
+                    cli.remarker,
+                    [
+                        "--verbose",
+                        "-o",
+                        output_file.name,
+                        self.data_files["default_slides"],
+                    ],
+                )
+                assert_same_contents(output_file.name, self.data_files["default_output"])
+                assert "slide-source: " in result.output
+                assert "html-template: " in result.output
+                assert "css-file: " in result.output
+                assert "Output file: <unopened file " in result.output
 
     def test_cli_with_custom_css(self):
         with self.runner.isolated_filesystem():
-            output_file = tempfile.mktemp(dir=".")
-            _ = self.runner.invoke(
-                cli.remarker,
-                [
-                    "-o",
-                    output_file,
-                    "--css-file",
-                    self.data_files["custom_css"],
-                    "--title",
-                    "testing",
-                    self.data_files["default_slides"],
-                ],
-            )
-            assert_same_contents(output_file, self.data_files["with_custom_css"])
+            # output_file = tempfile.mktemp(dir=".")
+            with NamedTemporaryFile(dir=".") as output_file:
+                _ = self.runner.invoke(
+                    cli.remarker,
+                    [
+                        "-o",
+                        output_file.name,
+                        "--css-file",
+                        self.data_files["custom_css"],
+                        "--title",
+                        "testing",
+                        self.data_files["default_slides"],
+                    ],
+                )
+                assert_same_contents(output_file.name, self.data_files["with_custom_css"])
