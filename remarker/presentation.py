@@ -1,10 +1,17 @@
+from typing import Optional
+
 from jinja2 import Template
 
 DEFAULT_JAVASCRIPT = """
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""
 
-def generate_html(template_html, slide_markdown, stylesheet_html, title=None):
+def generate_html(
+    template_html: str,
+    slide_markdown: str,
+    stylesheet_html: str,
+    title: Optional[str] = None
+):
     """ Generate HTML for a Reveal.js presentation given a template_html,
     slide_markdown contents, and stylesheet_html. """
 

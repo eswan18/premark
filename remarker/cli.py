@@ -7,7 +7,7 @@ from . import presentation
 DEFAULT_HTML_FILE = pkg_resources.resource_filename('remarker', 'templates/default.html')
 DEFAULT_CSS_FILE = pkg_resources.resource_filename('remarker', 'templates/default.css')
 
-def loadfile(filename):
+def loadfile(filename: str):
     with codecs.open(filename, encoding='utf8') as infile:
         return infile.read()
 
@@ -25,8 +25,14 @@ def loadfile(filename):
 @click.option('--verbose', '-v', is_flag=True, help='Output debugging info.')
 @click.version_option()
 @click.command()
-def remarker(slides_markdown_file, html_template, css_file, output_file,
-        title, verbose):
+def remarker(
+    slides_markdown_file: str,
+    html_template: str,
+    css_file: str,
+    output_file: str,
+    title: str,
+    verbose: bool,
+) -> None:
     """ Generate a Remark.js HTML presentation from input Markdown and
     optional custom CSS. """
     if verbose:
