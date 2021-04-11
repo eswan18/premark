@@ -28,6 +28,7 @@ typecheck_requires =  ['mypy']
 tests_require =  [
     'pytest',
     'pytest-runner',
+    'pytest-cov',
 ]
 
 setup(
