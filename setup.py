@@ -16,12 +16,16 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as readme_file:
 with open(path.join(here, 'HISTORY.rst'), encoding='utf-8') as history_file:
     history = history_file.read().replace('.. :changelog:', '')
 
-requirements = [
+requires = [
     'click',
     'jinja2',
 ]
 
-test_requirements = [
+lint_requires =  ['flake8']
+
+typecheck_requires =  ['mypy']
+
+tests_require =  [
     'pytest',
     'pytest-runner',
 ]
@@ -46,7 +50,12 @@ setup(
         'remarker': ['templates/*'],
         },
     python_requires='>=3.5',
-    install_requires=requirements,
+    install_requires=requires,
+    extras_require={
+        'lint': lint_requires,
+        'typecheck': typecheck_requires,
+        'tests': tests_require,
+    },
     license="MIT",
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -60,8 +69,4 @@ setup(
         'Programming Language :: Python :: 3.9',
     ],
     test_suite='tests',
-    tests_require=test_requirements,
-    extras_require={
-        'testing': test_requirements,
-        }
 )
