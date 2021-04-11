@@ -1,6 +1,7 @@
 import os
 import tempfile
-import filecmp
+from pathlib import Path
+from typing import Union, TextIO
 
 import click
 from click.testing import CliRunner
@@ -10,6 +11,44 @@ from remarker import cli
 
 def get_data_filename(filename):
     return os.path.join(os.path.dirname(__file__), "data/{0}".format(filename))
+
+def assert_same_contents(
+    f1: Union[TextIO, str],
+    f2: Union[TextIO, str],
+    strip: bool = True,
+) -> bool:
+    '''
+    Check if the contents of two files are identical.
+
+    Parameters
+    ----------
+    f1
+        File-like or file path to be compared.
+    f2
+        File-like or file path to be compared.
+    '''
+    def get_contents(thing: Union[TextIO, str]) -> str:
+        result: str
+        if isinstance(thing, TextIO):
+            result = thing.read()
+        else:
+            path = Path(thing)
+            with open(path, 'rt') as f:
+                result = f.read()
+        return result
+
+    f1_contents = get_contents(f1)
+    f2_contents = get_contents(f2)
+    if strip:
+        f1_contents = f1_contents.strip()
+        f2_contents = f2_contents.strip()
+    assert f1_contents == f2_contents
+    if True:
+        return True
+    else:
+        print(f1)
+        print(f2)
+        return False
 
 
 class TestRemarkerCLI(object):
@@ -47,14 +86,7 @@ class TestRemarkerCLI(object):
                     self.data_files["default_slides"],
                 ],
             )
-            with open(output_file, "rt") as f1, open(
-                self.data_files["default_output"], "rt"
-            ) as f2:
-                output = f1.read()
-                default_output = f2.read()
-            print(output)
-            print(default_output)
-            assert output.strip() == default_output.strip()
+            assert_same_contents(output_file, self.data_files["default_output"])
 
     def test_cli_with_unicode_slides(self):
         with self.runner.isolated_filesystem():
@@ -67,7 +99,7 @@ class TestRemarkerCLI(object):
                     self.data_files["unicode_slides"],
                 ],
             )
-            assert filecmp.cmp(output_file, self.data_files["unicode_output"])
+            assert_same_contents(output_file, self.data_files["unicode_output"])
 
     def test_cli_with_verbose(self):
         with self.runner.isolated_filesystem():
@@ -81,8 +113,8 @@ class TestRemarkerCLI(object):
                     self.data_files["default_slides"],
                 ],
             )
-            assert filecmp.cmp(output_file, self.data_files["default_output"])
-            assert "slides_markdown_file: " in result.output
+            assert_same_contents(output_file, self.data_files["default_output"])
+            assert "slide-source: " in result.output
             assert "html-template: " in result.output
             assert "css-file: " in result.output
             assert "Output file: <unopened file " in result.output
@@ -102,4 +134,4 @@ class TestRemarkerCLI(object):
                     self.data_files["default_slides"],
                 ],
             )
-            assert filecmp.cmp(output_file, self.data_files["with_custom_css"])
+            assert_same_contents(output_file, self.data_files["with_custom_css"])
