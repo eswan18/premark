@@ -3,7 +3,6 @@ import tempfile
 from pathlib import Path
 from typing import Union, TextIO
 
-import click
 from click.testing import CliRunner
 
 from remarker import cli
@@ -11,6 +10,7 @@ from remarker import cli
 
 def get_data_filename(filename):
     return os.path.join(os.path.dirname(__file__), "data/{0}".format(filename))
+
 
 def assert_same_contents(
     f1: Union[TextIO, str],
@@ -78,7 +78,7 @@ class TestRemarkerCLI(object):
     def test_cli_with_default_css(self):
         with self.runner.isolated_filesystem():
             output_file = tempfile.mktemp(dir=".")
-            result = self.runner.invoke(
+            _ = self.runner.invoke(
                 cli.remarker,
                 [
                     "-o",
@@ -91,7 +91,7 @@ class TestRemarkerCLI(object):
     def test_cli_with_unicode_slides(self):
         with self.runner.isolated_filesystem():
             output_file = tempfile.mktemp(dir=".")
-            result = self.runner.invoke(
+            _ = self.runner.invoke(
                 cli.remarker,
                 [
                     "-o",
@@ -122,7 +122,7 @@ class TestRemarkerCLI(object):
     def test_cli_with_custom_css(self):
         with self.runner.isolated_filesystem():
             output_file = tempfile.mktemp(dir=".")
-            result = self.runner.invoke(
+            _ = self.runner.invoke(
                 cli.remarker,
                 [
                     "-o",
