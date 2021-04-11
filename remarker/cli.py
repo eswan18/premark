@@ -11,6 +11,7 @@ DEFAULT_HTML_FILE = pkg_resources.resource_filename(
     "remarker", "templates/default.html"
 )
 DEFAULT_CSS_FILE = pkg_resources.resource_filename("remarker", "templates/default.css")
+DEFAULT_SECTION_METAFILE = 'sections.yaml'
 
 
 def loadfile(filename: str):
@@ -36,6 +37,13 @@ def loadfile(filename: str):
     help="Custom CSS to be included inline.",
 )
 @click.option(
+    "--section-metafile",
+    "-m",
+    default=DEFAULT_SECTION_METAFILE,
+    help=("File definition for the order of section stitching. Only needed if using a "
+          "sections folder.")
+)
+@click.option(
     "--output-file",
     "-o",
     type=click.File("wt", encoding="utf8"),
@@ -51,6 +59,7 @@ def loadfile(filename: str):
 def remarker(
     slide_source: str,
     html_template: str,
+    section_metafile: str,
     css_file: str,
     output_file: TextIO,
     title: str,
@@ -70,8 +79,7 @@ def remarker(
 
     # Users can pass a single slides markdown file or a directory of several "sections"
     # to be stitched together.
-    slide_md = slides_from_path(slide_source)
-    print(f'slide_md : {slide_md}')
+    slide_md = slides_from_path(slide_source, section_metafile)
 
     output_html = generate_html(
         template_html, slide_md, stylesheet_html, title=title

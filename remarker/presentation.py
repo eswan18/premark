@@ -7,7 +7,6 @@ import yaml
 DEFAULT_JAVASCRIPT = """
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""  # noqa
-DEFAULT_METAFILE = 'sections.yaml'
 
 
 def generate_html(
@@ -38,7 +37,7 @@ def generate_html(
 
 def slides_from_path(
     source_path: Union[str, Path],
-    metafile: Optional[str] = None,
+    metafile: str,
 ) -> str:
     '''
     Create text in markdown format for Remark to process, from a path.
@@ -50,10 +49,7 @@ def slides_from_path(
     if not isinstance(source_path, Path):
         source_path = Path(source_path)
     if source_path.is_dir():
-        if metafile is None:
-            metafile_path = source_path / DEFAULT_METAFILE
-        else:
-            metafile_path = source_path / metafile
+        metafile_path = source_path / metafile
         slide_markdown = stitch_slides(source_path, metafile_path)
     else:
         with open(source_path, 'rt') as f:
