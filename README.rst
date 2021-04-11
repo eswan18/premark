@@ -2,8 +2,8 @@
 Remarker
 ===============================
 
-.. image:: https://img.shields.io/travis/tylerdave/remarker.svg
-        :target: https://travis-ci.org/tylerdave/remarker
+.. image:: https://github.com/eswan18/remarker2/actions/workflows/ci.yaml/badge.svg
+        :target: https://github.com/eswan18/remarker2/actions/workflows/ci.yaml
 
 .. image:: https://img.shields.io/pypi/v/remarker.svg
         :target: https://pypi.python.org/pypi/remarker
