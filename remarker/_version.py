@@ -46,7 +46,7 @@ class NotThisMethod(Exception):
     pass
 
 
-LONG_VERSION_PY = {}
+LONG_VERSION_PY = {}  # type: ignore
 HANDLERS = {}
 
 

@@ -1,6 +1,6 @@
 import sys
-from io import TextIOWrapper
 import pkg_resources
+from typing import TextIO
 
 import click
 import codecs
@@ -38,7 +38,7 @@ def loadfile(filename: str):
 @click.option(
     "--output-file",
     "-o",
-    type=click.File("w", encoding="utf8"),
+    type=click.File("wt", encoding="utf8"),
     default=sys.stdout,
     help="Write the output to a file instead of STDOUT.",
 )
@@ -49,10 +49,10 @@ def loadfile(filename: str):
 @click.version_option()
 @click.command()
 def remarker(
-    slide_source: TextIOWrapper,
+    slide_source: TextIO,
     html_template: str,
     css_file: str,
-    output_file: str,
+    output_file: TextIO,
     title: str,
     verbose: bool,
 ) -> None:
