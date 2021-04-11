@@ -17,7 +17,7 @@ def assert_same_contents(
     f2: Union[TextIO, str],
     strip: bool = True,
 ) -> None:
-    '''
+    """
     Raise AssertionError if the contents of two files aren't identical.
 
     Parameters
@@ -26,14 +26,15 @@ def assert_same_contents(
         File-like or file path to be compared.
     f2
         File-like or file path to be compared.
-    '''
+    """
+
     def get_contents(thing: Union[TextIO, str]) -> str:
         result: str
         if isinstance(thing, TextIO):
             result = thing.read()
         else:
             path = Path(thing)
-            with open(path, 'rt') as f:
+            with open(path, "rt") as f:
                 result = f.read()
         return result
 
@@ -83,8 +84,7 @@ class TestRemarkerCLI(object):
                     ],
                 )
                 assert_same_contents(
-                    output_file.name,
-                    self.data_files["default_output"]
+                    output_file.name, self.data_files["default_output"]
                 )
 
     def test_cli_with_unicode_slides(self):
@@ -99,8 +99,7 @@ class TestRemarkerCLI(object):
                     ],
                 )
                 assert_same_contents(
-                    output_file.name,
-                    self.data_files["unicode_output"]
+                    output_file.name, self.data_files["unicode_output"]
                 )
 
     def test_cli_with_verbose(self):
@@ -116,8 +115,7 @@ class TestRemarkerCLI(object):
                     ],
                 )
                 assert_same_contents(
-                    output_file.name,
-                    self.data_files["default_output"]
+                    output_file.name, self.data_files["default_output"]
                 )
                 assert "slide-source: " in result.output
                 assert "html-template: " in result.output
@@ -140,8 +138,7 @@ class TestRemarkerCLI(object):
                     ],
                 )
                 assert_same_contents(
-                    output_file.name,
-                    self.data_files["with_custom_css"]
+                    output_file.name, self.data_files["with_custom_css"]
                 )
 
     def test_cli_slide_sections(self):
@@ -156,10 +153,8 @@ class TestRemarkerCLI(object):
                     ],
                 )
                 assert_same_contents(
-                    output_file.name,
-                    self.data_files["section_output"]
+                    output_file.name, self.data_files["section_output"]
                 )
-
 
     def test_cli_alternative_slide_sections(self):
         with self.runner.isolated_filesystem():
@@ -175,6 +170,5 @@ class TestRemarkerCLI(object):
                     ],
                 )
                 assert_same_contents(
-                    output_file.name,
-                    self.data_files["alternative_section_output"]
+                    output_file.name, self.data_files["alternative_section_output"]
                 )
