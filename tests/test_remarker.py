@@ -14,12 +14,11 @@ import remarker
 
 
 class TestRemarker(unittest.TestCase):
-
     def setUp(self):
         pass
 
     def test_something(self):
-        assert(remarker.__version__)
+        assert remarker.__version__
 
     def tearDown(self):
         pass
