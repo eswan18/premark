@@ -1,17 +1,22 @@
 import sys
 import pkg_resources
 from typing import TextIO
+import logging
 
 import click
 import codecs
 
 from .presentation import generate_html, slides_from_path
 
+
 DEFAULT_HTML_FILE = pkg_resources.resource_filename(
     "remarker", "templates/default.html"
 )
 DEFAULT_CSS_FILE = pkg_resources.resource_filename("remarker", "templates/default.css")
 DEFAULT_SECTION_METAFILE = 'sections.yaml'
+
+
+logger = logging.getLogger(__name__)
 
 
 def loadfile(filename: str):
@@ -65,14 +70,18 @@ def remarker(
     title: str,
     verbose: bool,
 ) -> None:
-    """Generate a Remark.js HTML presentation from input Markdown and
-    optional custom CSS."""
+    '''
+    Generate a Remark.js HTML presentation from input Markdown and optional custom CSS.
+    '''
     if verbose:
         click.echo("Input:", err=True)
         click.echo("slide-source: {}".format(slide_source), err=True)
         click.echo("html-template: {}".format(html_template), err=True)
         click.echo("css-file: {}".format(css_file), err=True)
         click.echo("Output file: {}".format(output_file), err=True)
+    log_str = ('remarker running with arguments: slide-source: %s; html-template: %s;'
+               'css-file: %s; output-file: %s')
+    logger.debug(log_str, slide_source, html_template, css_file, output_file)
 
     template_html = loadfile(html_template)
     stylesheet_html = loadfile(css_file)

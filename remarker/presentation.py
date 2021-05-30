@@ -1,12 +1,16 @@
 from pathlib import Path
 from typing import Optional, Union
+import logging
 
 from jinja2 import Template
 import yaml
 
+
 DEFAULT_JAVASCRIPT = """
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""  # noqa
+
+logger = logging.getLogger(__name__)
 
 
 def generate_html(
@@ -15,10 +19,10 @@ def generate_html(
     stylesheet_html: str,
     title: Optional[str] = None,
 ):
-    """Generate HTML for a Reveal.js presentation given a template_html,
-    slide_markdown contents, and stylesheet_html."""
+    '''
+    Generate HTML of a Reveal.js presentation.
+    '''
 
-    # only support inline css for now, maybe links in the future
     stylesheet_html = "<style>\n{0}</style".format(stylesheet_html)
     presentation = {
         "stylesheet_html": stylesheet_html,
@@ -43,8 +47,8 @@ def slides_from_path(
     Create text in markdown format for Remark to process, from a path.
 
     Path can be a single file or a folder. In the latter case, the folder is expected to
-    contain multiple sets of slides and a slideshow.yaml file specifying the order in
-    which to "stitch" the individual slideshows together.
+    contain multiple sets of slides and a metafile specifying the order in which to
+    "stitch" the individual slideshows together.
     '''
     if not isinstance(source_path, Path):
         source_path = Path(source_path)
@@ -58,13 +62,18 @@ def slides_from_path(
 
 
 def stitch_slides(source_path: Path, metafile: Path) -> str:
+    '''
+    Assemble multiple markdown files into a single one for Remark to process.
+
+    Metafile must define an order in which the files should be assembled.
+    '''
     if not metafile.exists():
         msg = f'Expected to metafile "{metafile}"'
         raise FileNotFoundError(msg)
     with open(metafile, 'rt') as f:
         metadata = yaml.load(f, Loader=yaml.SafeLoader)
     # The file can be a list of dictionaries, or a one-entry dictionary ('sections'),
-    # the value of which is a list of dictionaries
+    # the value of which is a list of dictionaries.
     if isinstance(metadata, dict):
         if 'sections' not in metadata:
             msg = "Expected to find 'sections' heading in metafile"
@@ -76,12 +85,14 @@ def stitch_slides(source_path: Path, metafile: Path) -> str:
         files = [entry['file'] for entry in metadata]
     else:  # metadata is List[str]
         files = metadata
+    logger.info('Markdown files: %s', files)
     # Check the files exist and then stitch them together.
     for i, fname in enumerate(files):
         # If the filename has no suffix, assume it's .md
         if '.' not in fname:
             fname = f'{fname}.md'
             files[i] = fname
+            logger.info(f'Inferring .md suffix: changing {fname} to {fname}.md')
         if not (source_path / fname).exists():
             msg = f"slide file '{fname}' not found in slide source folder"
             raise ValueError(msg)
