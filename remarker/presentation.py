@@ -79,7 +79,7 @@ def stitch_slides(source_path: Path, metafile: Path) -> str:
     # Check the files exist and then stitch them together.
     for i, fname in enumerate(files):
         # If the filename has no suffix, assume it's .md
-        if not '.' in fname:
+        if '.' not in fname:
             fname = f'{fname}.md'
             files[i] = fname
         if not (source_path / fname).exists():
