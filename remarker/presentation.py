@@ -77,7 +77,11 @@ def stitch_slides(source_path: Path, metafile: Path) -> str:
     else:  # metadata is List[str]
         files = metadata
     # Check the files exist and then stitch them together.
-    for fname in files:
+    for i, fname in enumerate(files):
+        # If the filename has no suffix, assume it's .md
+        if '.' not in fname:
+            fname = f'{fname}.md'
+            files[i] = fname
         if not (source_path / fname).exists():
             msg = f"slide file '{fname}' not found in slide source folder"
             raise ValueError(msg)
