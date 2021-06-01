@@ -1,0 +1,5 @@
+remark_args:
+  ratio: "16:9"
+  slideNumberFormat: "(%current%/%total%)"
+  countIncrementalSlides: False
+  highlightLines: True

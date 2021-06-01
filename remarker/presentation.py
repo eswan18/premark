@@ -1,14 +1,25 @@
 from pathlib import Path
 from typing import Optional, Union
 import logging
+import json
 
 from jinja2 import Template
 import yaml
 
 
-DEFAULT_JAVASCRIPT = """
-<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-<script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""  # noqa
+try:
+    import importlib.resources as resources
+except ImportError:
+    # Try backported to PY<37 `importlib_resources`.
+    import importlib_resources as resources  # type: ignore
+
+config_contents = resources.read_text(__package__, 'config.yaml')
+config = yaml.load(config_contents, Loader=yaml.SafeLoader)
+remark_args = config['remark_args']
+
+default_javascript = f"""
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script>var slideshow = remark.create({json.dumps(remark_args)});</script>"""
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +41,7 @@ def generate_html(
         "title": title,
     }
     remark = {
-        "javascript": DEFAULT_JAVASCRIPT,
+        "javascript": default_javascript,
     }
     template = Template(template_html)
     return template.render(
