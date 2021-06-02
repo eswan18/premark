@@ -12,7 +12,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.6"
+          python-version: "3.7"
       - name: Install Package
         run:
           pip install -e .[lint]
@@ -28,7 +28,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: "3.6"
+        python-version: "3.7"
     - name: Install Package
       run:
         pip install -e .[typecheck]
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9"]
+        python-version: ["3.7", "3.8", "3.9"]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
