@@ -167,7 +167,7 @@ class TestRemarkerCLI(object):
                     [
                         "-o",
                         output_file.name,
-                        "--section-metafile",
+                        "--metafile",
                         "alternative_sections.yaml",
                         self.data_files["sections_dir"],
                     ],
