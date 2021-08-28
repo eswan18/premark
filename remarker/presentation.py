@@ -85,7 +85,7 @@ class Presentation:
                    'stylesheet.')
             raise TypeError(msg)
 
-    def __eq__(self, other: 'Presentation') -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
             return NotImplemented
         else:
@@ -161,15 +161,4 @@ class Presentation:
             for fname in files
         )
         prez = Presentation.from_presentations(presentations)
-
-
-
-
-
         return prez
-
-
-def _stitch_slides(source_path: Path, metafile: Path) -> Presentation:
-
-        
-    return prez
