@@ -71,29 +71,33 @@ def remarker(
 
     # Users can pass a single slides markdown file or a directory of several "sections"
     # to be stitched together.
-    slide_source = pathlib.Path(slide_source)
-    if slide_source.is_dir():
+    slide_source_path = pathlib.Path(slide_source)
+    if slide_source_path.is_dir():
         if css_file or html_template or title:
             msg = ('If `slide-source` is a directory, none of `css_file`, '
                    '`html_template`, or `title` may be specified')
             raise click.ClickException(msg)
         metafile = metafile or DEFAULTS.metafile
-        p = Presentation.from_directory(slide_source, metafile)
+        p = Presentation.from_directory(slide_source_path, metafile)
     else:
         if metafile:
             msg = 'If `slide-source` is a file, `metafile` may not be specified'
             raise click.ClickException(msg)
         if html_template:
-            html_template = pathlib.Path(html_template)
+            html_template_path = pathlib.Path(html_template)
         else:
-            html_template = DEFAULT.html_template
+            html_template_path = DEFAULTS.html_template
         if css_file:
-            css_file = pathlib.Path(css_file)
+            css_file_path = pathlib.Path(css_file)
         else:
-            css_file = DEFAULT.stylesheet
-        p = Presentation(slide_source, html_template=html_template, stylesheet=css_file)
+            css_file_path = DEFAULTS.stylesheet
+        p = Presentation(
+            slide_source_path,
+            html_template=html_template_path,
+            stylesheet=css_file_path
+        )
 
-    title = title or DEFAULT.title
+    title = title or DEFAULTS.title
     output_html = p.to_html(title=title)
     output_file.write(output_html)
 
