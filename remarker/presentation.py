@@ -1,7 +1,7 @@
 from functools import reduce
 from operator import add
 from pathlib import Path
-from typing import Optional, Union, Iterable
+from typing import Optional, Union, Iterable, NamedTuple
 from pkg_resources import resource_filename
 
 from jinja2 import Template, Environment
@@ -122,33 +122,54 @@ class Presentation:
         if not isinstance(directory, Path):
             directory = Path(directory)
         metafile_path = directory / metafile
-        markdown = _stitch_slides(directory, metafile_path)
-        return cls(markdown)
 
-
-def _stitch_slides(source_path: Path, metafile: Path) -> str:
-    if not metafile.exists():
-        msg = f'Expected to metafile "{metafile}"'
-        raise FileNotFoundError(msg)
-    with open(metafile, 'rt') as f:
-        metadata = yaml.load(f, Loader=yaml.SafeLoader)
-    # The file can be a list of dictionaries, or a one-entry dictionary ('sections'),
-    # the value of which is a list of dictionaries
-    if isinstance(metadata, dict):
-        if 'sections' not in metadata:
+        try:
+            with open(metafile_path, 'rt') as f:
+                metadata = yaml.load(f, Loader=yaml.SafeLoader)
+        except FileNotFoundError as exc:
+            msg = f'metafile "{metafile}" not found in directory'
+            raise ValueError(msg) from exc
+        # The should contain a dictionary with a 'sections' key, the value of which is a
+        # list of dictionaries, along with optional additional keys 'html_template' and
+        # 'stylesheet'.
+        try:
+            sections = metadata['sections']
+        except (KeyError, TypeError) as exc:
             msg = "Expected to find 'sections' heading in metafile"
-            raise ValueError(msg)
-        metadata = metadata['sections']
-    # If we have a list of {'file': str} pairs (vs just a list of strings), we need to
-    # extract the filenames.
-    if isinstance(metadata[0], dict):  # metadata is List[Dict[str, str]]
-        files = [entry['file'] for entry in metadata]
-    else:  # metadata is List[str]
-        files = metadata
-    # Check the files exist and then stitch them together.
-    for fname in files:
-        if not (source_path / fname).exists():
-            msg = f"slide file '{fname}' not found in slide source folder"
-            raise ValueError(msg)
-    md = '\n---\n'.join(Path(source_path / fname).read_text() for fname in files)
-    return md
+            raise KeyError(msg) from exc
+        if 'html_template' in metadata:
+            html_template = Path(metadata['html_template'])
+        else:
+            html_template = HTML_TEMPLATE
+        if 'stylesheet' in metadata:
+            stylesheet = Path(metadata['stylesheet'])
+        else:
+            stylesheet = STYLESHEET
+        # If we have a list of {'file': str} pairs (vs just a list of strings), we need to
+        # extract the filenames.
+        if isinstance(sections[0], dict):  # metadata is List[Dict[str, str]]
+            try:
+                files = [entry['file'] for entry in sections]
+            except KeyError:
+                msg = 'Section entries must contain a "file" key'
+                raise KeyError(msg)
+        else:  # sections is List[str], hopefully
+            files = sections
+        # Check the files exist and then stitch them together.
+        presentations = (
+            Presentation(Path(directory / fname), html_template, stylesheet)
+            for fname in files
+        )
+        prez = Presentation.from_presentations(presentations)
+
+
+
+
+
+        return prez
+
+
+def _stitch_slides(source_path: Path, metafile: Path) -> Presentation:
+
+        
+    return prez
