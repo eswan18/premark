@@ -1,10 +1,8 @@
 import sys
-import pkg_resources
 from typing import Optional, TextIO
 import pathlib
 
 import click
-import codecs
 
 from .presentation import Presentation, DEFAULTS
 
@@ -50,15 +48,6 @@ def remarker(
     title: Optional[str],
     verbose: bool,
 ) -> None:
-    print(slide_source,
-    html_template,
-    metafile,
-    css_file,
-    output_file,
-    title,
-    verbose,
-    )
-
     """Generate a Remark.js HTML presentation from input Markdown and
     optional custom CSS."""
     if verbose:
@@ -67,7 +56,6 @@ def remarker(
         click.echo("html-template: {}".format(html_template), err=True)
         click.echo("css-file: {}".format(css_file), err=True)
         click.echo("Output file: {}".format(output_file), err=True)
-
 
     # Users can pass a single slides markdown file or a directory of several "sections"
     # to be stitched together.

@@ -4,8 +4,9 @@ from pathlib import Path
 from typing import Union, Iterable, NamedTuple
 from pkg_resources import resource_filename
 
-from jinja2 import Template, Environment
+from jinja2 import Template
 import yaml
+
 
 class DefaultSettings(NamedTuple):
     javascript: str
@@ -13,6 +14,7 @@ class DefaultSettings(NamedTuple):
     stylesheet: Path
     title: str
     metafile: str
+
 
 DEFAULTS = DefaultSettings(
     javascript="""
