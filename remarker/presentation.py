@@ -1,38 +1,104 @@
+from functools import reduce
+from operator import add
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Union, Iterable
+from pkg_resources import resource_filename
 
-from jinja2 import Template
+from jinja2 import Template, Environment
 import yaml
 
 DEFAULT_JAVASCRIPT = """
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""  # noqa
+HTML_TEMPLATE = Path(resource_filename('remarker', 'templates/default.html'))
+STYLESHEET = Path(resource_filename("remarker", "templates/default.css"))
+
+# Set up the Jinja environment; otherwise newlines are stripped from rendered templates.
+_env = Environment(keep_trailing_newline=True)
 
 
-def generate_html(
-    template_html: str,
-    slide_markdown: str,
-    stylesheet_html: str,
-    title: Optional[str] = None,
-):
-    """Generate HTML for a Reveal.js presentation given a template_html,
-    slide_markdown contents, and stylesheet_html."""
+class Presentation:
+    markdown: str
+    html_template: str
+    stylesheet_template: str
 
-    # only support inline css for now, maybe links in the future
-    stylesheet_html = "<style>\n{0}</style".format(stylesheet_html)
-    presentation = {
-        "stylesheet_html": stylesheet_html,
-        "slide_source": slide_markdown,
-        "title": title,
-    }
-    remark = {
-        "javascript": DEFAULT_JAVASCRIPT,
-    }
-    template = Template(template_html)
-    return template.render(
-        presentation=presentation,
-        remark=remark
-    )
+    def __init__(
+        self,
+        markdown: Union[str, Path],
+        html_template: Union[str, Path] = HTML_TEMPLATE,
+        stylesheet: Union[str, Path] = STYLESHEET,
+    ):
+        '''
+        Create a new Presentation.
+
+        Parameters
+        ----------
+        markdown
+            The markdown from which to render the presentations. If a Path object, is
+            interpreted as a file containing the markdown. If a string, is interpreted as
+            the literal markdown.
+        html_template
+            The HTML in which to insert the markdown. If a Path object, is interpreted
+            as a file containing the HTML. If a string, is interpreted as the literal
+            HTML.
+        stylesheet
+            The CSS to include in the eventual rendered HTML. If a Path object, is
+            interpreted as a file containing the CSS. If a string, is interpreted as the
+            literal CSS code.
+        '''
+        if isinstance(markdown, Path):
+            markdown = markdown.read_text()
+        if isinstance(html_template, Path):
+            html_template = html_template.read_text()
+        if isinstance(stylesheet, Path):
+            stylesheet = stylesheet.read_text()
+        self.markdown = markdown
+        self.html_template = html_template
+        self.stylesheet = stylesheet
+
+    def to_html(self, title: str = 'Remarker Presentation') -> str:
+        '''Convert the presentation to HTML.'''
+        template = Template(self.html_template)
+        stylesheet_html = f"<style>\n{self.stylesheet}\n</style>"
+        return template.render(
+            title=title,
+            markdown=self.markdown,
+            stylesheet=stylesheet_html,
+            js=DEFAULT_JAVASCRIPT,
+        )
+
+    def __add__(self, other: 'Presentation') -> 'Presentation':
+        '''Concatenate presentations.'''
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        html_matches = (self.html_template == other.html_template)
+        style_matches = (self.stylesheet == other.stylesheet)
+        if html_matches and style_matches:
+            merged_markdown = self.markdown + '\n---\n' + other.markdown
+            return self.__class__(
+                markdown=merged_markdown,
+                html_template=self.html_template,
+                stylesheet=self.stylesheet,
+            )
+        else:
+            msg = ('Cannot concatenate presentations unless they have the same HTML and'
+                   'stylesheet.')
+            raise TypeError(msg)
+
+    def __eq__(self, other: 'Presentation') -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        else:
+            md_matches = (self.markdown == other.markdown)
+            html_matches = (self.html_template == other.html_template)
+            style_matches = (self.stylesheet == other.stylesheet)
+            return (md_matches and html_matches and style_matches)
+
+    @classmethod
+    def from_presentations(cls, presentations: Iterable['Presentation']) -> 'Presentation':
+        '''Create a single presentations by merging others together.'''
+        # Because '+' is overloaded to concatenate, this merges the inputs.
+        return reduce(add, presentations)
 
 
 def slides_from_path(
