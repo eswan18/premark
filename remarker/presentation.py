@@ -100,30 +100,33 @@ class Presentation:
         # Because '+' is overloaded to concatenate, this merges the inputs.
         return reduce(add, presentations)
 
+    @classmethod
+    def from_directory(
+        cls,
+        directory: Union[str, Path],
+        metafile: str = 'sections.yaml',
+    ) -> 'Presentation':
+        '''
+        Create a slideshow from multiple markdown files in a folder.
 
-def slides_from_path(
-    source_path: Union[str, Path],
-    metafile: str,
-) -> str:
-    '''
-    Create text in markdown format for Remark to process, from a path.
+        Parameters
+        ----------
+        directory
+            The directory where the markdown files are stored. Should be a Path object
+            or a string that can be treated as a path.
+        metafile
+            The name of the file in that directory that defines the order in which to
+            stitch together the markdown files.
 
-    Path can be a single file or a folder. In the latter case, the folder is expected to
-    contain multiple sets of slides and a slideshow.yaml file specifying the order in
-    which to "stitch" the individual slideshows together.
-    '''
-    if not isinstance(source_path, Path):
-        source_path = Path(source_path)
-    if source_path.is_dir():
-        metafile_path = source_path / metafile
-        slide_markdown = stitch_slides(source_path, metafile_path)
-    else:
-        with open(source_path, 'rt') as f:
-            slide_markdown = f.read()
-    return slide_markdown
+        '''
+        if not isinstance(directory, Path):
+            directory = Path(directory)
+        metafile_path = directory / metafile
+        markdown = _stitch_slides(directory, metafile_path)
+        return cls(markdown)
 
 
-def stitch_slides(source_path: Path, metafile: Path) -> str:
+def _stitch_slides(source_path: Path, metafile: Path) -> str:
     if not metafile.exists():
         msg = f'Expected to metafile "{metafile}"'
         raise FileNotFoundError(msg)

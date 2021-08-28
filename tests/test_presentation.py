@@ -92,3 +92,10 @@ def test_from_presentations():
     actual = final.to_html()
     expected = SECTION_OUTPUT.read_text()
     assert_html_equiv(actual, expected)
+
+
+def test_from_directory():
+    final = Presentation.from_directory(SECTIONS_DIR)
+    actual = final.to_html()
+    expected = SECTION_OUTPUT.read_text()
+    assert_html_equiv(actual, expected)
