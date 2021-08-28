@@ -1,7 +1,7 @@
 from functools import reduce
 from operator import add
 from pathlib import Path
-from typing import Optional, Union, Iterable, NamedTuple
+from typing import Union, Iterable
 from pkg_resources import resource_filename
 
 from jinja2 import Template, Environment
@@ -35,8 +35,8 @@ class Presentation:
         ----------
         markdown
             The markdown from which to render the presentations. If a Path object, is
-            interpreted as a file containing the markdown. If a string, is interpreted as
-            the literal markdown.
+            interpreted as a file containing the markdown. If a string, is interpreted
+            as the literal markdown.
         html_template
             The HTML in which to insert the markdown. If a Path object, is interpreted
             as a file containing the HTML. If a string, is interpreted as the literal
@@ -95,7 +95,10 @@ class Presentation:
             return (md_matches and html_matches and style_matches)
 
     @classmethod
-    def from_presentations(cls, presentations: Iterable['Presentation']) -> 'Presentation':
+    def from_presentations(
+        cls,
+        presentations: Iterable['Presentation'],
+    ) -> 'Presentation':
         '''Create a single presentations by merging others together.'''
         # Because '+' is overloaded to concatenate, this merges the inputs.
         return reduce(add, presentations)
@@ -145,8 +148,8 @@ class Presentation:
             stylesheet = Path(metadata['stylesheet'])
         else:
             stylesheet = STYLESHEET
-        # If we have a list of {'file': str} pairs (vs just a list of strings), we need to
-        # extract the filenames.
+        # If we have a list of {'file': str} pairs (vs just a list of strings), we need
+        # to extract the filenames.
         if isinstance(sections[0], dict):  # metadata is List[Dict[str, str]]
             try:
                 files = [entry['file'] for entry in sections]
