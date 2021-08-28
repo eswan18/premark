@@ -6,7 +6,7 @@ import pathlib
 import click
 import codecs
 
-from .presentation import Presentation, DEFAULT_HTML_TEMPLATE, DEFAULT_STYLESHEET, DEFAULT_TITLE, DEFAULT_METAFILE
+from .presentation import Presentation, DEFAULTS
 
 
 @click.argument(
@@ -77,7 +77,7 @@ def remarker(
             msg = ('If `slide-source` is a directory, none of `css_file`, '
                    '`html_template`, or `title` may be specified')
             raise click.ClickException(msg)
-        metafile = metafile or DEFAULT_METAFILE
+        metafile = metafile or DEFAULTS.metafile
         p = Presentation.from_directory(slide_source, metafile)
     else:
         if metafile:
@@ -86,14 +86,14 @@ def remarker(
         if html_template:
             html_template = pathlib.Path(html_template)
         else:
-            html_template = DEFAULT_HTML_TEMPLATE
+            html_template = DEFAULT.html_template
         if css_file:
             css_file = pathlib.Path(css_file)
         else:
-            css_file = DEFAULT_STYLESHEET
+            css_file = DEFAULT.stylesheet
         p = Presentation(slide_source, html_template=html_template, stylesheet=css_file)
 
-    title = title or DEFAULT_TITLE
+    title = title or DEFAULT.title
     output_html = p.to_html(title=title)
     output_file.write(output_html)
 

@@ -1,20 +1,36 @@
 from functools import reduce
 from operator import add
 from pathlib import Path
-from typing import Union, Iterable
+from typing import Union, Iterable, NamedTuple
 from pkg_resources import resource_filename
 
 from jinja2 import Template, Environment
 import yaml
 
-DEFAULT_JAVASCRIPT = """
-<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-<script>var slideshow = remark.create({ratio: '16:9', slideNumberFormat: '(%current%/%total%)', countIncrementalSlides: false, highlightLines: true});</script>"""  # noqa
-HTML_TEMPLATE = Path(resource_filename('remarker', 'templates/default.html'))
-STYLESHEET = Path(resource_filename("remarker", "templates/default.css"))
+class DefaultSettings(NamedTuple):
+    javascript: str
+    html_template: Path
+    stylesheet: Path
+    title: str
+    metafile: str
 
-# Set up the Jinja environment; otherwise newlines are stripped from rendered templates.
-_env = Environment(keep_trailing_newline=True)
+DEFAULTS = DefaultSettings(
+    javascript="""
+        <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+        <script>
+            var slideshow = remark.create({
+                ratio: '16:9',
+                slideNumberFormat: '(%current%/%total%)',
+                countIncrementalSlides: false,
+                highlightLines: true
+            });
+        </script>
+    """,
+    html_template=Path(resource_filename('remarker', 'templates/default.html')),
+    stylesheet=Path(resource_filename("remarker", "templates/default.css")),
+    title='Remarker Presentation',
+    metafile='sections.yaml',
+)
 
 
 class Presentation:
@@ -25,8 +41,8 @@ class Presentation:
     def __init__(
         self,
         markdown: Union[str, Path],
-        html_template: Union[str, Path] = HTML_TEMPLATE,
-        stylesheet: Union[str, Path] = STYLESHEET,
+        html_template: Union[str, Path] = DEFAULTS.html_template,
+        stylesheet: Union[str, Path] = DEFAULTS.stylesheet,
     ):
         '''
         Create a new Presentation.
@@ -56,7 +72,7 @@ class Presentation:
         self.html_template = html_template
         self.stylesheet = stylesheet
 
-    def to_html(self, title: str = 'Remarker Presentation') -> str:
+    def to_html(self, title: str = DEFAULTS.title) -> str:
         '''Convert the presentation to HTML.'''
         template = Template(self.html_template)
         stylesheet_html = f"<style>\n{self.stylesheet}\n</style>"
@@ -64,7 +80,7 @@ class Presentation:
             title=title,
             markdown=self.markdown,
             stylesheet=stylesheet_html,
-            js=DEFAULT_JAVASCRIPT,
+            js=DEFAULTS.javascript,
         )
 
     def __add__(self, other: 'Presentation') -> 'Presentation':
@@ -107,7 +123,7 @@ class Presentation:
     def from_directory(
         cls,
         directory: Union[str, Path],
-        metafile: str = 'sections.yaml',
+        metafile: str = DEFAULTS.metafile,
     ) -> 'Presentation':
         '''
         Create a slideshow from multiple markdown files in a folder.
@@ -143,11 +159,11 @@ class Presentation:
         if 'html_template' in metadata:
             html_template = Path(metadata['html_template'])
         else:
-            html_template = HTML_TEMPLATE
+            html_template = DEFAULTS.html_template
         if 'stylesheet' in metadata:
             stylesheet = Path(metadata['stylesheet'])
         else:
-            stylesheet = STYLESHEET
+            stylesheet = DEFAULTS.stylesheet
         # If we have a list of {'file': str} pairs (vs just a list of strings), we need
         # to extract the filenames.
         if isinstance(sections[0], dict):  # metadata is List[Dict[str, str]]
