@@ -1,8 +1,9 @@
 from functools import reduce
 from operator import add
 from pathlib import Path
-from typing import Union, Iterable, NamedTuple
+from typing import Union, Iterable, NamedTuple, Optional
 from pkg_resources import resource_filename
+from dataclasses import dataclass
 
 from jinja2 import Template
 import yaml
@@ -33,6 +34,27 @@ DEFAULTS = DefaultSettings(
     title='Remarker Presentation',
     metafile='sections.yaml',
 )
+
+
+@dataclass
+class SectionDefinition:
+    filename: str
+    title: Optional[str] = None
+    autotitle: Optional[bool] = None  # If None, treated as True if title is not None.
+
+    def make_presentation(self, section_num: int = None) -> 'Presentation':
+        markdown = Path(self.filename).read_text()
+        should_autotitle = (
+            self.autotitle if self.autotitle is not None else bool(self.title)
+        )
+        # Create the auto-generated section title slide.
+        if should_autotitle:
+            if section_num is None:
+                msg = ('Must provide a `section_num` argument to create presentations '
+                       'from autotitled SectionDefinitions.')
+                raise ValueError(msg)
+            markdown = f'## #{section_num}\n#{self.title}---f{markdown}'
+        return Presentation(markdown)
 
 
 class Presentation:
@@ -170,16 +192,23 @@ class Presentation:
         # to extract the filenames.
         if isinstance(sections[0], dict):  # metadata is List[Dict[str, str]]
             try:
-                files = [entry['file'] for entry in sections]
+                section_defs = [
+                    SectionDefinition(
+                        entry['file'],
+                        entry.get('title'),
+                        entry.get('autotitle')
+                    )
+                    for entry in sections
+                ]
             except KeyError:
                 msg = 'Section entries must contain a "file" key'
                 raise KeyError(msg)
         else:  # sections is List[str], hopefully
-            files = sections
+            section_defs = [SectionDefinition(s) for s in sections]
         # Check the files exist and then stitch them together.
         presentations = (
-            Presentation(Path(directory / fname), html_template, stylesheet)
-            for fname in files
+            Presentation(Path(directory / section.filename), html_template, stylesheet)
+            for section in section_defs
         )
         prez = Presentation.from_presentations(presentations)
         return prez
