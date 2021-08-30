@@ -42,18 +42,18 @@ class SectionDefinition:
     title: Optional[str] = None
     autotitle: Optional[bool] = None  # If None, treated as True if title is not None.
 
+    def should_autotitle(self):
+        return self.autotitle if self.autotitle is not None else bool(self.title)
+
     def make_presentation(self, section_num: int = None) -> 'Presentation':
         markdown = self.file.read_text()
-        should_autotitle = (
-            self.autotitle if self.autotitle is not None else bool(self.title)
-        )
         # Create the auto-generated section title slide.
-        if should_autotitle:
+        if self.should_autotitle():
             if section_num is None:
                 msg = ('Must provide a `section_num` argument to create presentations '
                        'from autotitled SectionDefinitions.')
                 raise ValueError(msg)
-            markdown = f'## #{section_num}\n# {self.title}\n---\n{markdown}'
+            markdown = f'class: center, middle\n## #{section_num}\n# {self.title}\n---\n{markdown}'
         return Presentation(markdown)
 
 
@@ -206,8 +206,16 @@ class Presentation:
         else:  # sections is List[str], hopefully
             section_defs = [SectionDefinition(directory / s) for s in sections]
         # Check the files exist and then stitch them together.
-        presentations = (section.make_presentation() for section in section_defs)
-        prez = Presentation.from_presentations(presentations)
-        prez.html_template = Path(html_template).read_text()
-        prez.stylesheet = Path(stylesheet).read_text()
-        return prez
+        section_num = 1
+        presentations: List[Presentation] = []
+        for section in section_defs:
+            if section.should_autotitle():
+                prez = section.make_presentation(section_num)
+                section_num += 1
+            else:
+                prez = section.make_presentation()
+            presentations.append(prez)
+        final_prez = Presentation.from_presentations(presentations)
+        final_prez.html_template = Path(html_template).read_text()
+        final_prez.stylesheet = Path(stylesheet).read_text()
+        return final_prez
