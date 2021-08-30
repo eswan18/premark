@@ -38,12 +38,12 @@ DEFAULTS = DefaultSettings(
 
 @dataclass
 class SectionDefinition:
-    filename: str
+    file: Path
     title: Optional[str] = None
     autotitle: Optional[bool] = None  # If None, treated as True if title is not None.
 
     def make_presentation(self, section_num: int = None) -> 'Presentation':
-        markdown = Path(self.filename).read_text()
+        markdown = self.file.read_text()
         should_autotitle = (
             self.autotitle if self.autotitle is not None else bool(self.title)
         )
@@ -53,7 +53,7 @@ class SectionDefinition:
                 msg = ('Must provide a `section_num` argument to create presentations '
                        'from autotitled SectionDefinitions.')
                 raise ValueError(msg)
-            markdown = f'## #{section_num}\n#{self.title}---f{markdown}'
+            markdown = f'## #{section_num}\n# {self.title}\n---\n{markdown}'
         return Presentation(markdown)
 
 
@@ -194,9 +194,9 @@ class Presentation:
             try:
                 section_defs = [
                     SectionDefinition(
-                        entry['file'],
-                        entry.get('title'),
-                        entry.get('autotitle')
+                        file=(directory / entry['file']),
+                        title=entry.get('title'),
+                        autotitle=entry.get('autotitle')
                     )
                     for entry in sections
                 ]
@@ -204,11 +204,10 @@ class Presentation:
                 msg = 'Section entries must contain a "file" key'
                 raise KeyError(msg)
         else:  # sections is List[str], hopefully
-            section_defs = [SectionDefinition(s) for s in sections]
+            section_defs = [SectionDefinition(directory / s) for s in sections]
         # Check the files exist and then stitch them together.
-        presentations = (
-            Presentation(Path(directory / section.filename), html_template, stylesheet)
-            for section in section_defs
-        )
+        presentations = (section.make_presentation() for section in section_defs)
         prez = Presentation.from_presentations(presentations)
+        prez.html_template = Path(html_template).read_text()
+        prez.stylesheet = Path(stylesheet).read_text()
         return prez
