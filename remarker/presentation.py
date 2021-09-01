@@ -1,111 +1,235 @@
+from functools import reduce
+from operator import add
 from pathlib import Path
-from typing import Optional, Union
 import logging
-import json
+from typing import Union, List, Iterable, NamedTuple, Optional
+from pkg_resources import resource_filename
+from dataclasses import dataclass
 
 from jinja2 import Template
 import yaml
 
-
-try:
-    import importlib.resources as resources
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as resources  # type: ignore
-
-config_contents = resources.read_text(__package__, 'config.yaml')
-config = yaml.load(config_contents, Loader=yaml.SafeLoader)
-remark_args = config['remark_args']
-
-default_javascript = f"""
-    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-    <script>var slideshow = remark.create({json.dumps(remark_args)});</script>"""
-
 logger = logging.getLogger(__name__)
 
 
-def generate_html(
-    template_html: str,
-    slide_markdown: str,
-    stylesheet_html: str,
-    title: Optional[str] = None,
-):
-    '''
-    Generate HTML of a Reveal.js presentation.
-    '''
-
-    stylesheet_html = "<style>\n{0}</style".format(stylesheet_html)
-    presentation = {
-        "stylesheet_html": stylesheet_html,
-        "slide_source": slide_markdown,
-        "title": title,
-    }
-    remark = {
-        "javascript": default_javascript,
-    }
-    template = Template(template_html)
-    return template.render(
-        presentation=presentation,
-        remark=remark
-    )
+class DefaultSettings(NamedTuple):
+    javascript: str
+    html_template: Path
+    stylesheet: Path
+    title: str
+    metafile: str
 
 
-def slides_from_path(
-    source_path: Union[str, Path],
-    metafile: str,
-) -> str:
-    '''
-    Create text in markdown format for Remark to process, from a path.
-
-    Path can be a single file or a folder. In the latter case, the folder is expected to
-    contain multiple sets of slides and a metafile specifying the order in which to
-    "stitch" the individual slideshows together.
-    '''
-    if not isinstance(source_path, Path):
-        source_path = Path(source_path)
-    if source_path.is_dir():
-        metafile_path = source_path / metafile
-        slide_markdown = stitch_slides(source_path, metafile_path)
-    else:
-        with open(source_path, 'rt') as f:
-            slide_markdown = f.read()
-    return slide_markdown
+DEFAULTS = DefaultSettings(
+    javascript="""
+        <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+        <script>
+            var slideshow = remark.create({
+                ratio: '16:9',
+                slideNumberFormat: '(%current%/%total%)',
+                countIncrementalSlides: false,
+                highlightLines: true
+            });
+        </script>
+    """,
+    html_template=Path(resource_filename('remarker', 'templates/default.html')),
+    stylesheet=Path(resource_filename("remarker", "templates/default.css")),
+    title='Remarker Presentation',
+    metafile='sections.yaml',
+)
 
 
-def stitch_slides(source_path: Path, metafile: Path) -> str:
-    '''
-    Assemble multiple markdown files into a single one for Remark to process.
+@dataclass
+class SectionDefinition:
+    file: Path
+    title: Optional[str] = None
+    autotitle: Optional[bool] = None  # If None, treated as True if title is not None.
 
-    Metafile must define an order in which the files should be assembled.
-    '''
-    if not metafile.exists():
-        msg = f'Expected to metafile "{metafile}"'
-        raise FileNotFoundError(msg)
-    with open(metafile, 'rt') as f:
-        metadata = yaml.load(f, Loader=yaml.SafeLoader)
-    # The file can be a list of dictionaries, or a one-entry dictionary ('sections'),
-    # the value of which is a list of dictionaries.
-    if isinstance(metadata, dict):
-        if 'sections' not in metadata:
+    def __post_init__(self):
+        # Assume files without suffixes that don't exist should be .md files.
+        if '.' not in str(self.file) and not self.file.exists():
+            new_file = self.file.with_suffix('.md')
+            logger.info(f'Inferring .md suffix: changing {self.file} to {new_file}')
+            self.file = new_file
+
+    def should_autotitle(self):
+        return self.autotitle if self.autotitle is not None else bool(self.title)
+
+    def make_presentation(self, section_num: int = None) -> 'Presentation':
+        markdown = self.file.read_text()
+        # Create the auto-generated section title slide.
+        if self.should_autotitle():
+            if section_num is None:
+                msg = ('Must provide a `section_num` argument to create presentations '
+                       'from autotitled SectionDefinitions.')
+                raise ValueError(msg)
+            markdown = ('class: center, middle\n'
+                        '## #{section_num}\n'
+                        '# {self.title}\n'
+                        '---\n'
+                        f'{markdown}')
+        return Presentation(markdown)
+
+
+class Presentation:
+    markdown: str
+    html_template: str
+    stylesheet_template: str
+
+    def __init__(
+        self,
+        markdown: Union[str, Path],
+        html_template: Union[str, Path] = DEFAULTS.html_template,
+        stylesheet: Union[str, Path] = DEFAULTS.stylesheet,
+    ):
+        '''
+        Create a new Presentation.
+
+        Parameters
+        ----------
+        markdown
+            The markdown from which to render the presentations. If a Path object, is
+            interpreted as a file containing the markdown. If a string, is interpreted
+            as the literal markdown.
+        html_template
+            The HTML in which to insert the markdown. If a Path object, is interpreted
+            as a file containing the HTML. If a string, is interpreted as the literal
+            HTML.
+        stylesheet
+            The CSS to include in the eventual rendered HTML. If a Path object, is
+            interpreted as a file containing the CSS. If a string, is interpreted as the
+            literal CSS code.
+        '''
+        if isinstance(markdown, Path):
+            markdown = markdown.read_text()
+        if isinstance(html_template, Path):
+            html_template = html_template.read_text()
+        if isinstance(stylesheet, Path):
+            stylesheet = stylesheet.read_text()
+        self.markdown = markdown
+        self.html_template = html_template
+        self.stylesheet = stylesheet
+
+    def to_html(self, title: str = DEFAULTS.title) -> str:
+        '''Convert the presentation to HTML.'''
+        template = Template(self.html_template)
+        stylesheet_html = f"<style>\n{self.stylesheet}\n</style>"
+        return template.render(
+            title=title,
+            markdown=self.markdown,
+            stylesheet=stylesheet_html,
+            js=DEFAULTS.javascript,
+        )
+
+    def __add__(self, other: 'Presentation') -> 'Presentation':
+        '''Concatenate presentations.'''
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        html_matches = (self.html_template == other.html_template)
+        style_matches = (self.stylesheet == other.stylesheet)
+        if html_matches and style_matches:
+            merged_markdown = self.markdown + '\n---\n' + other.markdown
+            return self.__class__(
+                markdown=merged_markdown,
+                html_template=self.html_template,
+                stylesheet=self.stylesheet,
+            )
+        else:
+            msg = ('Cannot concatenate presentations unless they have the same HTML and'
+                   'stylesheet.')
+            raise TypeError(msg)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return NotImplemented
+        else:
+            md_matches = (self.markdown == other.markdown)
+            html_matches = (self.html_template == other.html_template)
+            style_matches = (self.stylesheet == other.stylesheet)
+            return (md_matches and html_matches and style_matches)
+
+    @classmethod
+    def from_presentations(
+        cls,
+        presentations: Iterable['Presentation'],
+    ) -> 'Presentation':
+        '''Create a single presentations by merging others together.'''
+        # Because '+' is overloaded to concatenate, this merges the inputs.
+        return reduce(add, presentations)
+
+    @classmethod
+    def from_directory(
+        cls,
+        directory: Union[str, Path],
+        metafile: str = DEFAULTS.metafile,
+    ) -> 'Presentation':
+        '''
+        Create a slideshow from multiple markdown files in a folder.
+
+        Parameters
+        ----------
+        directory
+            The directory where the markdown files are stored. Should be a Path object
+            or a string that can be treated as a path.
+        metafile
+            The name of the file in that directory that defines the order in which to
+            stitch together the markdown files.
+
+        '''
+        if not isinstance(directory, Path):
+            directory = Path(directory)
+        metafile_path = directory / metafile
+
+        try:
+            with open(metafile_path, 'rt') as f:
+                metadata = yaml.load(f, Loader=yaml.SafeLoader)
+        except FileNotFoundError as exc:
+            msg = f'metafile "{metafile}" not found in directory'
+            raise ValueError(msg) from exc
+        # The should contain a dictionary with a 'sections' key, the value of which is a
+        # list of dictionaries, along with optional additional keys 'html_template' and
+        # 'stylesheet'.
+        try:
+            sections = metadata['sections']
+        except (KeyError, TypeError) as exc:
             msg = "Expected to find 'sections' heading in metafile"
-            raise ValueError(msg)
-        metadata = metadata['sections']
-    # If we have a list of {'file': str} pairs (vs just a list of strings), we need to
-    # extract the filenames.
-    if isinstance(metadata[0], dict):  # metadata is List[Dict[str, str]]
-        files = [entry['file'] for entry in metadata]
-    else:  # metadata is List[str]
-        files = metadata
-    logger.info('Markdown files: %s', files)
-    # Check the files exist and then stitch them together.
-    for i, fname in enumerate(files):
-        # If the filename has no suffix, assume it's .md
-        if '.' not in fname:
-            fname = f'{fname}.md'
-            files[i] = fname
-            logger.info(f'Inferring .md suffix: changing {fname} to {fname}.md')
-        if not (source_path / fname).exists():
-            msg = f"slide file '{fname}' not found in slide source folder"
-            raise ValueError(msg)
-    md = '\n---\n'.join(Path(source_path / fname).read_text() for fname in files)
-    return md
+            raise KeyError(msg) from exc
+        if 'html_template' in metadata:
+            html_template = Path(metadata['html_template'])
+        else:
+            html_template = DEFAULTS.html_template
+        if 'stylesheet' in metadata:
+            stylesheet = Path(metadata['stylesheet'])
+        else:
+            stylesheet = DEFAULTS.stylesheet
+        # If we have a list of {'file': str} pairs (vs just a list of strings), we need
+        # to extract the filenames.
+        if isinstance(sections[0], dict):  # metadata is List[Dict[str, str]]
+            try:
+                section_defs = [
+                    SectionDefinition(
+                        file=(directory / entry['file']),
+                        title=entry.get('title'),
+                        autotitle=entry.get('autotitle')
+                    )
+                    for entry in sections
+                ]
+            except KeyError:
+                msg = 'Section entries must contain a "file" key'
+                raise KeyError(msg)
+        else:  # sections is List[str], hopefully
+            section_defs = [SectionDefinition(directory / s) for s in sections]
+        # Check the files exist and then stitch them together.
+        section_num = 1
+        presentations: List[Presentation] = []
+        for section in section_defs:
+            if section.should_autotitle():
+                prez = section.make_presentation(section_num)
+                section_num += 1
+            else:
+                prez = section.make_presentation()
+            presentations.append(prez)
+        final_prez = Presentation.from_presentations(presentations)
+        final_prez.html_template = Path(html_template).read_text()
+        final_prez.stylesheet = Path(stylesheet).read_text()
+        return final_prez

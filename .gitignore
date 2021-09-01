@@ -9,6 +9,9 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+venv/
+.env/
+.venv/
 build/
 develop-eggs/
 dist/
@@ -20,7 +23,6 @@ lib64/
 parts/
 sdist/
 var/
-venv/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -62,3 +64,5 @@ target/
 #Ipython Notebook
 .ipynb_checkpoints
 
+# Vim
+.*.swp

@@ -6,6 +6,7 @@ from typing import Union, TextIO
 from click.testing import CliRunner
 
 from remarker import cli
+from .comparison import assert_html_equiv
 
 
 def get_data_filename(filename):
@@ -86,8 +87,9 @@ class TestRemarkerCLI(object):
                         self.data_files["default_slides"],
                     ],
                 )
-                assert_same_contents(
-                    output_file.name, self.data_files["default_output"]
+                assert_html_equiv(
+                    Path(output_file.name).read_text(),
+                    Path(self.data_files["default_output"]).read_text(),
                 )
 
     def test_cli_with_unicode_slides(self):
@@ -101,8 +103,9 @@ class TestRemarkerCLI(object):
                         self.data_files["unicode_slides"],
                     ],
                 )
-                assert_same_contents(
-                    output_file.name, self.data_files["unicode_output"]
+                assert_html_equiv(
+                    Path(output_file.name).read_text(),
+                    Path(self.data_files["unicode_output"]).read_text(),
                 )
 
     def test_cli_with_verbose(self):
@@ -117,8 +120,9 @@ class TestRemarkerCLI(object):
                         self.data_files["default_slides"],
                     ],
                 )
-                assert_same_contents(
-                    output_file.name, self.data_files["default_output"]
+                assert_html_equiv(
+                    Path(output_file.name).read_text(),
+                    Path(self.data_files["default_output"]).read_text(),
                 )
                 assert "slide-source: " in result.output
                 assert "html-template: " in result.output
@@ -140,8 +144,9 @@ class TestRemarkerCLI(object):
                         self.data_files["default_slides"],
                     ],
                 )
-                assert_same_contents(
-                    output_file.name, self.data_files["with_custom_css"]
+                assert_html_equiv(
+                    Path(output_file.name).read_text(),
+                    Path(self.data_files["with_custom_css"]).read_text(),
                 )
 
     def test_cli_slide_sections(self):
@@ -155,8 +160,9 @@ class TestRemarkerCLI(object):
                         self.data_files["sections_dir"],
                     ],
                 )
-                assert_same_contents(
-                    output_file.name, self.data_files["section_output"]
+                assert_html_equiv(
+                    Path(output_file.name).read_text(),
+                    Path(self.data_files["section_output"]).read_text(),
                 )
 
     def test_cli_alternative_slide_sections(self):
@@ -167,13 +173,14 @@ class TestRemarkerCLI(object):
                     [
                         "-o",
                         output_file.name,
-                        "--section-metafile",
+                        "--metafile",
                         "alternative_sections.yaml",
                         self.data_files["sections_dir"],
                     ],
                 )
-                assert_same_contents(
-                    output_file.name, self.data_files["alternative_section_output"]
+                assert_html_equiv(
+                    Path(output_file.name).read_text(),
+                    Path(self.data_files["alternative_section_output"]).read_text(),
                 )
 
     def test_cli_abbreviated_slide_sections(self):
@@ -184,11 +191,12 @@ class TestRemarkerCLI(object):
                     [
                         "-o",
                         output_file.name,
-                        "--section-metafile",
+                        "--metafile",
                         "abbrev_sections.yaml",
                         self.data_files["sections_dir"],
                     ],
                 )
-                assert_same_contents(
-                    output_file.name, self.data_files["section_output"]
+                assert_html_equiv(
+                    Path(output_file.name).read_text(),
+                    Path(self.data_files["section_output"]).read_text(),
                 )

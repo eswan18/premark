@@ -1,27 +1,13 @@
 import sys
-import pkg_resources
-from typing import TextIO
 import logging
+from typing import Optional, TextIO
+import pathlib
 
 import click
-import codecs
 
-from .presentation import generate_html, slides_from_path
-
-
-DEFAULT_HTML_FILE = pkg_resources.resource_filename(
-    "remarker", "templates/default.html"
-)
-DEFAULT_CSS_FILE = pkg_resources.resource_filename("remarker", "templates/default.css")
-DEFAULT_SECTION_METAFILE = 'sections.yaml'
-
+from .presentation import Presentation, DEFAULTS
 
 logger = logging.getLogger(__name__)
-
-
-def loadfile(filename: str):
-    with codecs.open(filename, encoding="utf8") as infile:
-        return infile.read()
 
 
 @click.argument(
@@ -31,20 +17,17 @@ def loadfile(filename: str):
 @click.option(
     "--html-template",
     type=click.Path(exists=True),
-    default=DEFAULT_HTML_FILE,
     help="Jinja2 template file for the presentation.",
 )
 @click.option(
     "--css-file",
     "-c",
     type=click.Path(exists=True),
-    default=DEFAULT_CSS_FILE,
     help="Custom CSS to be included inline.",
 )
 @click.option(
-    "--section-metafile",
+    "--metafile",
     "-m",
-    default=DEFAULT_SECTION_METAFILE,
     help=("File definition for the order of section stitching. Only needed if using a "
           "sections folder.")
 )
@@ -55,19 +38,17 @@ def loadfile(filename: str):
     default=sys.stdout,
     help="Write the output to a file instead of STDOUT.",
 )
-@click.option(
-    "--title", "-t", default="Presentation", help="HTML title of the presentation."
-)
+@click.option("--title", "-t", help="HTML title of the presentation.")
 @click.option("--verbose", "-v", is_flag=True, help="Output debugging info.")
 @click.version_option()
 @click.command()
 def remarker(
     slide_source: str,
-    html_template: str,
-    section_metafile: str,
-    css_file: str,
+    html_template: Optional[str],
+    metafile: Optional[str],
+    css_file: Optional[str],
     output_file: TextIO,
-    title: str,
+    title: Optional[str],
     verbose: bool,
 ) -> None:
     '''
@@ -83,16 +64,36 @@ def remarker(
                'css-file: %s; output-file: %s')
     logger.debug(log_str, slide_source, html_template, css_file, output_file)
 
-    template_html = loadfile(html_template)
-    stylesheet_html = loadfile(css_file)
-
     # Users can pass a single slides markdown file or a directory of several "sections"
     # to be stitched together.
-    slide_md = slides_from_path(slide_source, section_metafile)
+    slide_source_path = pathlib.Path(slide_source)
+    if slide_source_path.is_dir():
+        if css_file or html_template or title:
+            msg = ('If `slide-source` is a directory, none of `css_file`, '
+                   '`html_template`, or `title` may be specified')
+            raise click.ClickException(msg)
+        metafile = metafile or DEFAULTS.metafile
+        p = Presentation.from_directory(slide_source_path, metafile)
+    else:
+        if metafile:
+            msg = 'If `slide-source` is a file, `metafile` may not be specified'
+            raise click.ClickException(msg)
+        if html_template:
+            html_template_path = pathlib.Path(html_template)
+        else:
+            html_template_path = DEFAULTS.html_template
+        if css_file:
+            css_file_path = pathlib.Path(css_file)
+        else:
+            css_file_path = DEFAULTS.stylesheet
+        p = Presentation(
+            slide_source_path,
+            html_template=html_template_path,
+            stylesheet=css_file_path
+        )
 
-    output_html = generate_html(
-        template_html, slide_md, stylesheet_html, title=title
-    )
+    title = title or DEFAULTS.title
+    output_html = p.to_html(title=title)
     output_file.write(output_html)
 
 

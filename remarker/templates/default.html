@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-      <title>{{ presentation.title }}</title>
+    <title>{{ title }}</title>
     <meta charset="utf-8">
-{{ presentation.stylesheet_html }}
+    {{ stylesheet }}
   </head>
   <body>
     <textarea id="source">
-{{ presentation.slide_source }}
+{{ markdown }}
     </textarea>
-    {{ remark.javascript }}
- </body>
+    {{ js }}
+  </body>
 </html>
