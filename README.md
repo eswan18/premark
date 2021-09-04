@@ -1,8 +1,8 @@
-# Remarker
+# Premarker
 
-[![CI Badge](https://github.com/eswan18/remarker2/actions/workflows/ci.yaml/badge.svg)](https://github.com/eswan18/remarker2/actions/workflows/ci.yaml)
+[![CI Badge](https://github.com/eswan18/premarker/actions/workflows/ci.yaml/badge.svg)](https://github.com/eswan18/premarker/actions/workflows/ci.yaml)
 
-A command line tool for generating single-file `Remark.js <https://github.com/gnab/remark>`_ presentations from markdown files.
+A command line tool for generating single-file [Remark.js](https://github.com/gnab/remark>) presentations from markdown files.
 
 License: MIT
 
@@ -17,11 +17,11 @@ Documentation: *TBD*
 ## Usage
 
 ```bash
-remarker --help
+premarker --help
 ```
 
 ```
-Usage: remarker [OPTIONS] SLIDE_SOURCE
+Usage: premarker [OPTIONS] SLIDE_SOURCE
 
 Generate a Remark.js HTML presentation from input Markdown and optional
 custom CSS.
@@ -45,18 +45,18 @@ Options:
 Generate `presentation.html` from Markdown in `slides.md`:
 
 ```bash
-remarker -o presentation.html slides.md
+premarker -o presentation.html slides.md
 ```
 
 Generate `presentation.html` from Markdown in `slides.md` and CSS in `style.css`:
 
 ```bash
-remarker -o presentation.html -c style.css slides.md
+premarker -o presentation.html -c style.css slides.md
 ```
 
 Generate ``presentation.html`` from a folder ``slide_sections`` containing multiple markdown files along with a ``sections.yaml`` file defining the order in which to collate them:
 
 ```bash
-remarker -o presentation.html slide_sections
+premarker -o presentation.html slide_sections
 ```
 
