@@ -1,6 +1,4 @@
 import re
-from typing import Union
-from pathlib import Path
 
 
 def assert_html_equiv(s1: str, s2: str) -> None:

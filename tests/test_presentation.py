@@ -1,8 +1,5 @@
-import os
 from collections import namedtuple
 from pathlib import Path
-
-import pytest
 
 from remarker import Presentation
 from .comparison import assert_html_equiv
