@@ -5,7 +5,7 @@ from typing import Union, TextIO
 
 from click.testing import CliRunner
 
-from remarker import cli
+from premark import cli
 from .comparison import assert_html_equiv
 
 
@@ -66,13 +66,13 @@ class TestRemarkerCLI(object):
         self.runner = CliRunner()
 
     def test_cli_without_arg_shows_error(self):
-        result = self.runner.invoke(cli.remarker, [])
+        result = self.runner.invoke(cli.premark, [])
         assert result.exit_code == 2
         assert result.output.startswith("Usage: ")
         assert "Error: Missing argument" in result.output
 
     def test_cli_help_shows_usage(self):
-        result = self.runner.invoke(cli.remarker, ["--help"])
+        result = self.runner.invoke(cli.premark, ["--help"])
         assert result.exit_code == 0
         assert result.output.startswith("Usage: ")
 
@@ -80,7 +80,7 @@ class TestRemarkerCLI(object):
         with self.runner.isolated_filesystem():
             with NamedTemporaryFile(dir=".") as output_file:
                 _ = self.runner.invoke(
-                    cli.remarker,
+                    cli.premark,
                     [
                         "-o",
                         output_file.name,
@@ -96,7 +96,7 @@ class TestRemarkerCLI(object):
         with self.runner.isolated_filesystem():
             with NamedTemporaryFile(dir=".") as output_file:
                 _ = self.runner.invoke(
-                    cli.remarker,
+                    cli.premark,
                     [
                         "-o",
                         output_file.name,
@@ -112,7 +112,7 @@ class TestRemarkerCLI(object):
         with self.runner.isolated_filesystem():
             with NamedTemporaryFile(dir=".") as output_file:
                 result = self.runner.invoke(
-                    cli.remarker,
+                    cli.premark,
                     [
                         "--verbose",
                         "-o",
@@ -133,7 +133,7 @@ class TestRemarkerCLI(object):
         with self.runner.isolated_filesystem():
             with NamedTemporaryFile(dir=".") as output_file:
                 _ = self.runner.invoke(
-                    cli.remarker,
+                    cli.premark,
                     [
                         "-o",
                         output_file.name,
@@ -153,7 +153,7 @@ class TestRemarkerCLI(object):
         with self.runner.isolated_filesystem():
             with NamedTemporaryFile(dir=".") as output_file:
                 _ = self.runner.invoke(
-                    cli.remarker,
+                    cli.premark,
                     [
                         "-o",
                         output_file.name,
@@ -169,7 +169,7 @@ class TestRemarkerCLI(object):
         with self.runner.isolated_filesystem():
             with NamedTemporaryFile(dir=".") as output_file:
                 _ = self.runner.invoke(
-                    cli.remarker,
+                    cli.premark,
                     [
                         "-o",
                         output_file.name,
@@ -187,7 +187,7 @@ class TestRemarkerCLI(object):
         with self.runner.isolated_filesystem():
             with NamedTemporaryFile(dir=".") as output_file:
                 _ = self.runner.invoke(
-                    cli.remarker,
+                    cli.premark,
                     [
                         "-o",
                         output_file.name,

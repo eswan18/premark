@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from jinja2 import Template
 import yaml
 
+PKG_NAME = 'premark'
 logger = logging.getLogger(__name__)
 
 
@@ -32,9 +33,9 @@ DEFAULTS = DefaultSettings(
             });
         </script>
     """,
-    html_template=Path(resource_filename('remarker', 'templates/default.html')),
-    stylesheet=Path(resource_filename("remarker", "templates/default.css")),
-    title='Remarker Presentation',
+    html_template=Path(resource_filename(PKG_NAME, 'templates/default.html')),
+    stylesheet=Path(resource_filename(PKG_NAME, "templates/default.css")),
+    title='Premark Presentation',
     metafile='sections.yaml',
 )
 

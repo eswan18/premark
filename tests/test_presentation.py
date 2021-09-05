@@ -1,7 +1,7 @@
 from collections import namedtuple
 from pathlib import Path
 
-from remarker import Presentation
+from premark import Presentation
 from .comparison import assert_html_equiv
 
 DATA_DIR = Path(__file__).parent / "data"

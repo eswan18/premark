@@ -35,16 +35,16 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 remarker tests
+	flake8 premark tests
 
 test:
-	python setup.py test
+	pytest
 
 test-all:
 	tox
 
 coverage:
-	coverage run --source remarker setup.py test
+	coverage run --source premark pytest
 	coverage report -m
 	coverage html
 	open htmlcov/index.html

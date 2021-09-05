@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 @click.option("--verbose", "-v", is_flag=True, help="Output debugging info.")
 @click.version_option()
 @click.command()
-def remarker(
+def premark(
     slide_source: str,
     html_template: Optional[str],
     metafile: Optional[str],
@@ -60,7 +60,7 @@ def remarker(
         click.echo("html-template: {}".format(html_template), err=True)
         click.echo("css-file: {}".format(css_file), err=True)
         click.echo("Output file: {}".format(output_file), err=True)
-    log_str = ('remarker running with arguments: slide-source: %s; html-template: %s;'
+    log_str = ('premark running with arguments: slide-source: %s; html-template: %s;'
                'css-file: %s; output-file: %s')
     logger.debug(log_str, slide_source, html_template, css_file, output_file)
 
@@ -98,4 +98,4 @@ def remarker(
 
 
 if __name__ == "__main__":  # pragma: no cover
-    remarker()
+    premark()
