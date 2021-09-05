@@ -50,7 +50,7 @@ jobs:
           python-version: "${{ matrix.python-version }}"
       - name: Install Package
         run:
-          pip install -e .[tests]
+          pip install -e .[test]
       - name: Run pytest and Generate Coverage Report
         run:
           pytest --cov-report=xml
