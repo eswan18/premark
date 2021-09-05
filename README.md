@@ -1,8 +1,8 @@
-# Premarker
+# Premark
 
-[![CI Badge](https://github.com/eswan18/premarker/actions/workflows/ci.yaml/badge.svg)](https://github.com/eswan18/premarker/actions/workflows/ci.yaml)
+[![CI Badge](https://github.com/eswan18/premark/actions/workflows/ci.yaml/badge.svg)](https://github.com/eswan18/premark/actions/workflows/ci.yaml)
 
-A command line tool for generating single-file [Remark.js](https://github.com/gnab/remark>) presentations from markdown files.
+A lightweight, command line preprocessor for creating [Remark.js](https://github.com/gnab/remark) presentations from markdown files.
 
 License: MIT
 
@@ -12,16 +12,16 @@ Documentation: *TBD*
 
 * Even when using multiple input files (custom CSS and/or a markdown file separate from your HTML template), the output is always a single HTML file. This means you can open it in your browser without spinning up a web server. In contrast, with vanilla Remark, if your main HTML file needs to load any other files then it can't be opened locally without a web server.
 
-* Supports "section stitching" -- you can store multiple sets of markdown slides in a single folder and Remarker will stitch them together into a single slideshow. This can be very handy when your presentation becomes large enough that it's cumbersome to keep in a single file.
+* Supports "section stitching" -- you can store multiple sets of markdown slides in a single folder and Premark will stitch them together into a single slideshow. This can be very handy when your presentation becomes large enough that it's cumbersome to keep in a single file.
 
 ## Usage
 
 ```bash
-premarker --help
+premark --help
 ```
 
 ```
-Usage: premarker [OPTIONS] SLIDE_SOURCE
+Usage: premark [OPTIONS] SLIDE_SOURCE
 
 Generate a Remark.js HTML presentation from input Markdown and optional
 custom CSS.
@@ -45,18 +45,18 @@ Options:
 Generate `presentation.html` from Markdown in `slides.md`:
 
 ```bash
-premarker -o presentation.html slides.md
+premark -o presentation.html slides.md
 ```
 
 Generate `presentation.html` from Markdown in `slides.md` and CSS in `style.css`:
 
 ```bash
-premarker -o presentation.html -c style.css slides.md
+premark -o presentation.html -c style.css slides.md
 ```
 
 Generate ``presentation.html`` from a folder ``slide_sections`` containing multiple markdown files along with a ``sections.yaml`` file defining the order in which to collate them:
 
 ```bash
-premarker -o presentation.html slide_sections
+premark -o presentation.html slide_sections
 ```
 
