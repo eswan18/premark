@@ -32,6 +32,9 @@ jobs:
     - name: Install Package
       run:
         pip install -e .[typecheck]
+    - name: Install Type Stubs
+      run:
+        mypy --install-types
     - name: Run mypy
       run:
         mypy premark tests
