@@ -11,7 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   readme.md
+   Basics <readme.md>
    installation
    usage
    contributing
