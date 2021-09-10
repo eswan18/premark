@@ -3,6 +3,7 @@
 [![CI Badge](https://github.com/eswan18/premark/actions/workflows/ci.yaml/badge.svg)](https://github.com/eswan18/premark/actions/workflows/ci.yaml)
 
 A lightweight, command line preprocessor for creating [Remark.js](https://github.com/gnab/remark) presentations from markdown files.
+Based on [Remarker](https://github.com/tylerdave/remarker) by @tylerdave.
 
 License: MIT
 

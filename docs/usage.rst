@@ -1,5 +1,0 @@
-========
-Usage
-========
-
-Run ``remarker --help``
