@@ -1,6 +1,11 @@
 # API Documentation
 
 ```{eval-rst}
-.. automodule:: premark.presentation
+.. autoclass:: premark.presentation.SectionDefinition
+  :members:
+```
+
+```{eval-rst}
+.. autoclass:: premark.presentation.Presentation
   :members:
 ```
