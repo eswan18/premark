@@ -50,9 +50,6 @@ coverage:
 	open htmlcov/index.html
 
 docs:
-	rm -f docs/remarker.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ premark
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	open docs/_build/html/index.html

@@ -11,4 +11,5 @@ Command Line Invocation <cli-usage>
 contributing
 authors
 changelog
+api
 ```
