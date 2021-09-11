@@ -8,8 +8,8 @@
 
 installation
 Command Line Invocation <cli-usage>
+API Documentation <api>
 contributing
 authors
 changelog
-api
 ```
