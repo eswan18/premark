@@ -1,4 +1,4 @@
-# Usage
+# Command Line Invocation
 
 Commands are generally of the form:
 ```bash
@@ -27,15 +27,44 @@ Available options are below:
 
 ## Usage Examples
 
-Generate `presentation.html` from Markdown in `slides.md` and CSS in `style.css`:
+### Breaking Markdown into Sections
 
-```bash
-premark -o presentation.html -c style.css slides.md
+Premark can combine multiple markdown files containing slide definitions into a single final presentation.
+Simply put all the markdown files in a single folder (say, `slide_sections`) along with a `sections.yaml` file like the below:
+
+```yaml
+sections:
+- file: intro.md
+- file: agenda.md
+- file: closing.md
 ```
 
-Generate ``presentation.html`` from a folder ``slide_sections`` containing multiple markdown files along with a ``sections.yaml`` file defining the order in which to collate them:
+Then, when invoked with the below command, Premark will search that `slide_sections` directory for `intro.md`, `agenda.md`, and `closing.md`, merging them and producing a single presentation from the result.
 
 ```bash
 premark -o presentation.html slide_sections
 ```
 
+Premark can even add title slides to each section.
+Simply provide a `title` key in the section metadata file:
+```yaml
+sections:
+- file: intro.md
+- file: agenda.md
+  title: Agenda
+- file: closing.md
+  title: Final Thoughts
+```
+
+Sections without a `title` key will not have a title slide added and aren't counted when numbering the sections.
+
+### Custom CSS or HTML
+
+Premark allows you to specify your own CSS or HTML template to be used in the final presentation, through the `--css-file` and `--html-template` options.
+
+```bash
+premark -o presentation.html --css-file styles.css slides.md
+```
+```bash
+premark -o presentation.html --html-template template.html slides.md
+```

@@ -7,7 +7,7 @@
 :maxdepth: 1
 
 installation
-usage
+Command Line Invocation <cli-usage>
 contributing
 authors
 history
