@@ -115,7 +115,19 @@ class Presentation:
         self.stylesheet = stylesheet
 
     def to_html(self, title: str = DEFAULTS.title) -> str:
-        '''Convert the presentation to HTML.'''
+        '''
+        Convert the presentation to HTML.
+
+        Parameters
+        ----------
+        title
+            The name to be used in the title tag in the resulting HTML.
+
+        Returns
+        -------
+        str
+            An HTML rendering of the presentation.
+        '''
         template = Template(self.html_template)
         stylesheet_html = f"<style>\n{self.stylesheet}\n</style>"
         return template.render(
@@ -167,7 +179,7 @@ class Presentation:
 
         Returns
         -------
-        result
+        Presentation
             The resulting, merged presentation
         '''
         # Because '+' is overloaded to concatenate, this merges the inputs.
@@ -193,7 +205,7 @@ class Presentation:
 
         Returns
         -------
-        presentation
+        Presentation
             A new presentation based on the files in the input directory
         '''
         if not isinstance(directory, Path):
