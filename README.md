@@ -12,6 +12,8 @@ Documentation: [Read The Docs](https://premark.readthedocs.io/en/latest/)
 
 ## Notable Features
 
+- Create slides from simple Markdown. Use three dashes on their own line (`---`) to indicate the transition from one slide to another. All other markdown features work as expected.
+
 - The output is always a *single* HTML file. This means you can open it in your browser without spinning up a web server.
   - In contrast, with vanilla Remark, if your main HTML file needs to load any other files then it can't be opened locally without a web server.
 
