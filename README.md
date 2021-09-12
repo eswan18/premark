@@ -4,7 +4,7 @@
 [![Docs Status](https://readthedocs.org/projects/premark/badge/?version=latest)](https://premark.readthedocs.io/en/latest/?badge=latest)
 
 Premark generates single-file HTML presentations from one or many markdown files, using [Remark.js](https://github.com/gnab/remark).
-Based on [Remarker](https://github.com/tylerdave/remarker) by @tylerdave.
+Based on [Remarker](https://github.com/tylerdave/remarker) by [@tylerdave](https://github.com/tylerdave).
 
 License: MIT
 
