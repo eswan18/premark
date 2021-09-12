@@ -73,6 +73,9 @@ class SectionDefinition:
 
 
 class Presentation:
+    '''
+    An unrendered RemarkJS presentation.
+    '''
     markdown: str
     html_template: str
     stylesheet_template: str
@@ -154,7 +157,19 @@ class Presentation:
         cls,
         presentations: Iterable['Presentation'],
     ) -> 'Presentation':
-        '''Create a single presentations by merging others together.'''
+        '''
+        Create a single presentations by merging others together.
+
+        Parameters
+        ----------
+        presentations
+            An iterable of Presentation objects
+
+        Returns
+        -------
+        result
+            The resulting, merged presentation
+        '''
         # Because '+' is overloaded to concatenate, this merges the inputs.
         return reduce(add, presentations)
 
@@ -176,6 +191,10 @@ class Presentation:
             The name of the file in that directory that defines the order in which to
             stitch together the markdown files.
 
+        Returns
+        -------
+        presentation
+            A new presentation based on the files in the input directory
         '''
         if not isinstance(directory, Path):
             directory = Path(directory)
