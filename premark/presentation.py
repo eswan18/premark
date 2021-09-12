@@ -1,3 +1,4 @@
+import sys
 from functools import reduce
 from operator import add
 from pathlib import Path
@@ -8,6 +9,11 @@ from dataclasses import dataclass
 
 from jinja2 import Template
 import yaml
+
+if sys.version_info >= (3, 8):
+    from typing import Final
+else:
+    from typing_extensions import Final
 
 PKG_NAME = 'premark'
 logger = logging.getLogger(__name__)
@@ -21,7 +27,7 @@ class DefaultSettings(NamedTuple):
     metafile: str
 
 
-DEFAULTS = DefaultSettings(
+DEFAULTS: Final = DefaultSettings(
     javascript="""
         <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
         <script>
