@@ -8,6 +8,7 @@
 
 installation
 Command Line Invocation <cli-usage>
+As a Python Library <library-usage>
 API Documentation <api>
 contributing
 authors
