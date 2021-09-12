@@ -7,8 +7,8 @@
 :maxdepth: 1
 
 installation
-Usage from the Command Line <cli-usage>
-Usage as a Python Library <library-usage>
+Using from the Command Line <cli-usage>
+Using as a Python Library <library-usage>
 API Documentation <api>
 contributing
 authors

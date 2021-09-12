@@ -29,7 +29,7 @@ There are three ways of creating a new `Presentation` object:
 #### Through the standard initializer
 
 ```
-p = Presentation(markdown, html_template , stylesheet)
+p = Presentation(markdown)
 ```
 This is the simplest approach.
 The markdown provided can be either a string of raw markdown or a `pathlib.Path` object pointing to a file containing the markdown.

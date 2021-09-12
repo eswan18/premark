@@ -1,4 +1,4 @@
-# Command Line Invocation
+# Using from the Command Line
 
 Commands are generally of the form:
 ```bash
