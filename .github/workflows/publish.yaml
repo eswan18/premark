@@ -1,7 +1,8 @@
 name: Publish Distributions to PyPI
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
     branches:
       - main
       - 'releases/**'
@@ -10,6 +11,8 @@ jobs:
   build-n-publish:
     name: Build and Publish Distributions to PyPI
     runs-on: ubuntu-latest
+    # Only run job if the corresponding CI pipeline succeeded.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
