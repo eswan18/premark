@@ -42,8 +42,7 @@ release: dist
 	twine upload dist/*
 
 dist: clean
-	python -m build --sdist
-	python -m build --wheel
+	python -m build
 
 install: clean
 	python -m pip install .

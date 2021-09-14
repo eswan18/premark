@@ -1,3 +1,6 @@
+[project]
+name = "Premark"
+
 [build-system]
 requires = [
     "setuptools>=49",
