@@ -46,36 +46,7 @@ DEFAULTS: Final = DefaultSettings(
 )
 
 
-@dataclass
-class SectionDefinition:
-    file: Path
-    title: Optional[str] = None
-    autotitle: Optional[bool] = None  # If None, treated as True if title is not None.
 
-    def __post_init__(self):
-        # Assume files without suffixes that don't exist should be .md files.
-        if '.' not in str(self.file) and not self.file.exists():
-            new_file = self.file.with_suffix('.md')
-            logger.info(f'Inferring .md suffix: changing {self.file} to {new_file}')
-            self.file = new_file
-
-    def should_autotitle(self):
-        return self.autotitle if self.autotitle is not None else bool(self.title)
-
-    def make_presentation(self, section_num: int = None) -> 'Presentation':
-        markdown = self.file.read_text()
-        # Create the auto-generated section title slide.
-        if self.should_autotitle():
-            if section_num is None:
-                msg = ('Must provide a `section_num` argument to create presentations '
-                       'from autotitled SectionDefinitions.')
-                raise ValueError(msg)
-            markdown = ('class: center, middle\n'
-                        '## #{section_num}\n'
-                        '# {self.title}\n'
-                        '---\n'
-                        f'{markdown}')
-        return Presentation(markdown)
 
 
 class Presentation:
