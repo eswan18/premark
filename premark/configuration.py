@@ -1,12 +1,17 @@
+import os
 from collections import ChainMap
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Any, Union, Optional, List, Dict, TypedDict, Final
+from typing import Any, Union, Optional, List, Dict, TypedDict, cast, TYPE_CHECKING
 
 import yaml
 
 from .presentation import Presentation
 
+if TYPE_CHECKING:
+    ConfigChainMap = ChainMap[str, Any]
+else:
+    ConfigChainMap = ChainMap
 
 SectionList = List[Dict[str, str]]
 
@@ -17,15 +22,18 @@ CONFIG_ELEMENT_TYPES = {
     'html_template_file': Path,
     'output_file': Path,
 }
+MANDATORY_CONFIG_KEYS = set(('source', 'css_file', 'html_template_file'))
+
+# logger = ...
 
 
 # Define some TypedDicts to specify what configuration dictionaries look like.
 class ConfigDict(TypedDict):
     source: Path
-    sections: SectionList # Only set if source is a folder
+    sections: SectionList  # Only set if source is a folder
     css_file: Path
     html_template_file: Path
-    output_file: Path # If unset, output becomes stdout
+    output_file: Path  # If unset, output becomes stdout
 
 
 @dataclass
@@ -38,7 +46,7 @@ class SectionDefinition:
         # Assume files without suffixes that don't exist should be .md files.
         if '.' not in str(self.file) and not self.file.exists():
             new_file = self.file.with_suffix('.md')
-            logger.info(f'Inferring .md suffix: changing {self.file} to {new_file}')
+            # logger.info(f'Inferring .md suffix: changing {self.file} to {new_file}')
             self.file = new_file
 
     def should_autotitle(self):
@@ -60,50 +68,20 @@ class SectionDefinition:
         return Presentation(markdown)
 
 
-class ConfigChain(ChainMap):
+def config_is_valid(config: ConfigChainMap) -> bool:
+    keys = set(config.keys())
 
-    # def __init__(
-        # self,
-        # maps: Iterable[Mapping[str, Any]],
-    # ):
-        # self.config_map = ChainMap(*sources)
-        # self.sources = self.config_map.map
-        # super().__init__(*sources)
+    # Do we have all mandatory keys? (.issubset returns true if sets are equal)
+    if not MANDATORY_CONFIG_KEYS.issubset(keys):
+        return False
 
-    @classmethod
-    def from_file(cls, filepath: Path) -> 'ConfigChain':
-        ...
+    # Are all keys something we expect?
+    possible_keys = set(CONFIG_ELEMENT_TYPES.keys())
+    if not keys.issubset(possible_keys):
+        return False
 
-    @classmethod
-    def load(
-        cls,
-        file: Union[Path, str],
-        cli_args: ConfigDict,
-        force_valid: bool = True,
-    ) -> 'Configuration':
-        # File should be a yaml file or the contents of one
-        if isinstance(file, Path):
-            file = file.read_text()
-        raw_conf = yaml.load(file, Loader=yaml.SafeLoader)
-        raw_conf.update(cli_args)
-        return cls(raw_conf, force_valid=force_valid)
+    return True
 
-    def __getitem__(self, index: Any) -> Any:
-        return self.config_lkp[index]
-
-    def __add__(self, other: 'Configuration') -> 'Configuration':
-        return self.__class__.from_mappings(self.config_map, other.config_map)
-
-    def validate(self, raise_=True):
-        ... # What's it mean to be valid?
-        raise NotImplementedError
-        if not valid:
-            if raise_:
-                raise TypeError('Invalid configuration specified')
-            else:
-                return False
-        else:
-            return True
 
 def get_config_from_file(file: Union[Path, str]) -> ConfigDict:
     '''
@@ -113,9 +91,15 @@ def get_config_from_file(file: Union[Path, str]) -> ConfigDict:
         file = Path(file)
     contents = file.read_text()
     conf = yaml.load(contents, Loader=yaml.SafeLoader)
+    return get_config_from_dict(conf)
 
+
+def get_config_from_dict(conf: object) -> ConfigDict:
+    '''
+    Take a dictionary containing a config and validate it.
+    '''
     if not isinstance(conf, dict):
-        msg = f'Invalid yaml config file "{file}"; file contents must be a mapping.'
+        msg = f'Invalid config object of type "{type(conf)}"; object must be a mapping.'
         raise TypeError(msg)
     keys = set(conf.keys())
     expected_keys = set(CONFIG_ELEMENT_TYPES.keys())
@@ -155,8 +139,7 @@ def get_config_from_file(file: Union[Path, str]) -> ConfigDict:
     return cast(ConfigDict, conf)
 
 
-def get_config_from_dict(dct: dict) -> ConfigDict:
-    '''
-    Take a dictionary containing a config and validate it.
-    '''
-    ...
+def get_config_from_env() -> ConfigDict:
+    conf = {key: os.environ[key] for key in CONFIG_ELEMENT_TYPES.keys()
+            if key in os.environ}
+    return get_config_from_dict(conf)
