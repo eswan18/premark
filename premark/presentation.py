@@ -71,8 +71,8 @@ class SectionDefinition:
                        'from autotitled SectionDefinitions.')
                 raise ValueError(msg)
             markdown = ('class: center, middle\n'
-                        '## #{section_num}\n'
-                        '# {self.title}\n'
+                        f'## #{section_num}\n'
+                        f'# {self.title}\n'
                         '---\n'
                         f'{markdown}')
         return Presentation(markdown)
