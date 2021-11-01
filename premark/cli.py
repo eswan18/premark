@@ -13,31 +13,25 @@ logger = logging.getLogger(__name__)
 DEFAULT_CONFIG_FILE = 'premark.yaml'
 
 
+
+@click.version_option()
 @click.option(
-    "--source",
-    type=click.Path(exists=True, file_okay=True, dir_okay=True),
-    help="Path of source markdown file or folder",
-)
-@click.option(
-    "--config",
+    "--css",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
-    help="Path of Premark configuration file",
-)
-@click.option(
-    "--html",
-    type=click.Path(exists=True, file_okay=True, dir_okay=False),
-    help="Jinja2 template file for the presentation.",
+    help="Custom CSS to be included inline",
 )
 @click.option(
     "--js",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
-    help="Javascript to be embedded in the HTML template",
+    help="Custom JavaScript to be embedded in the HTML",
 )
 @click.option(
-    "--css",
+    "--html",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
-    help="Custom CSS to be included inline.",
+    help="Custom Jinja2 HTML template for the presentation",
 )
+@click.option("--verbose", "-v", is_flag=True, help="Output debugging info.")
+@click.option("--title", "-t", help="HTML title of the presentation")
 @click.option(
     "--outfile",
     "-o",
@@ -45,24 +39,32 @@ DEFAULT_CONFIG_FILE = 'premark.yaml'
     default=sys.stdout,
     help="Write the output to a file instead of STDOUT.",
 )
-@click.option("--title", "-t", help="HTML title of the presentation.")
-@click.option("--verbose", "-v", is_flag=True, help="Output debugging info.")
-@click.version_option()
+@click.option(
+    "--source",
+    "-s", 
+    type=click.Path(exists=True, file_okay=True, dir_okay=True),
+    help="Path of source markdown file or folder",
+)
+@click.option(
+    "--config",
+    "-c",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    help="Path of Premark configuration file",
+)
 @click.command()
 def premark(
     config: Optional[str],
     source: Optional[str],
-    html: Optional[str],
-    js: Optional[str],
-    css: Optional[str],
     outfile: TextIO,
     title: Optional[str],
     verbose: bool,
+    html: Optional[str],
+    js: Optional[str],
+    css: Optional[str],
 ) -> None:
     '''
     Generate a Remark.js HTML presentation from input markdown.
     '''
-    return
     if verbose:
         click.echo("Input:", err=True)
         click.echo("slide-source: {}".format(slide_source), err=True)
