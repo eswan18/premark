@@ -46,9 +46,6 @@ DEFAULTS: Final = DefaultSettings(
 )
 
 
-
-
-
 class Presentation:
     '''
     An unrendered RemarkJS presentation.
