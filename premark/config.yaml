@@ -3,3 +3,7 @@ remark_args:
   slideNumberFormat: "(%current%/%total%)"
   countIncrementalSlides: False
   highlightLines: True
+html_template: "{{premark}}/templates/default.html"
+stylesheet: "{{premark}}/templates/default.css"
+title: Premark Presentation
+metafile: sections.yaml
