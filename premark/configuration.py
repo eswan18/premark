@@ -1,11 +1,9 @@
 from pathlib import Path
-from dataclasses import dataclass
-from typing import Any, Union, Optional, Type, Iterator
+from typing import Any, Union, Mapping, Type, Iterator
 from typing import Protocol, runtime_checkable, TypeVar
+from pkg_resources import resource_filename
 
 import yaml
-
-from .presentation import Presentation
 
 
 P = TypeVar('P', bound='_PartialConfig')
@@ -16,48 +14,13 @@ class Readable(Protocol):
     def read(self) -> Union[str, bytes]: ...
 
 
-SectionList = list[dict[str, str]]
-
-
-@dataclass
-class SectionDefinition:
-    file: Path
-    title: Optional[str] = None
-    autotitle: Optional[bool] = None  # If None, treated as True if title is not None.
-
-    def __post_init__(self):
-        # Assume files without suffixes that don't exist should be .md files.
-        if '.' not in str(self.file) and not self.file.exists():
-            new_file = self.file.with_suffix('.md')
-            #logger.info(f'Inferring .md suffix: changing {self.file} to {new_file}')
-            self.file = new_file
-
-    def should_autotitle(self):
-        return self.autotitle if self.autotitle is not None else bool(self.title)
-
-    def make_presentation(self, section_num: int = None) -> 'Presentation':
-        markdown = self.file.read_text()
-        # Create the auto-generated section title slide.
-        if self.should_autotitle():
-            if section_num is None:
-                msg = ('Must provide a `section_num` argument to create presentations '
-                       'from autotitled SectionDefinitions.')
-                raise ValueError(msg)
-            markdown = ('class: center, middle\n'
-                        '## #{section_num}\n'
-                        '# {self.title}\n'
-                        '---\n'
-                        f'{markdown}')
-        return Presentation(markdown)
-
-
 class _PartialConfig:
 
     def __init__(
         self,
-        config_dict: dict[str, Any],
+        config: Mapping[str, Any],
     ):
-        self._config_dict = config_dict
+        self._config_map = config
 
     @classmethod
     def from_file(
@@ -88,7 +51,10 @@ class _PartialConfig:
         return cls(conf)
 
     def __iter__(self) -> Iterator[str]:
-        return iter(self._config_dict)
+        return iter(self._config_map)
 
     def __getitem__(self, key: str) -> Any:
-        return self._config_dict[key]
+        return self._config_map[key]
+
+
+default_config = _PartialConfig.from_file(resource_filename('premark', 'config.yaml'))
