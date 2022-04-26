@@ -1,7 +1,8 @@
+import logging
+from pkg_resources import resource_filename
 from pathlib import Path
 from typing import Any, Union, Mapping, Type, Iterator
 from typing import Protocol, runtime_checkable, TypeVar
-from pkg_resources import resource_filename
 
 import yaml
 
@@ -66,7 +67,7 @@ class PartialConfig:
         conf = yaml.load(_yaml, Loader=yaml.SafeLoader)
         return cls(conf)
 
-    def items(self) -> Iterator[str, Any]:
+    def items(self) -> Iterator[tuple[str, Any]]:
         return self._config_map.items()
 
     def keys(self) -> Iterator[str]:
