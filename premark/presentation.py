@@ -6,6 +6,8 @@ import logging
 from typing import Union, List, Iterable, NamedTuple, Optional
 from pkg_resources import resource_filename
 from dataclasses import dataclass
+from pkg_resources import resource_filename
+from .configuration import PartialConfig
 
 from jinja2 import Template
 import yaml
@@ -19,31 +21,20 @@ PKG_NAME = 'premark'
 logger = logging.getLogger(__name__)
 
 
-class DefaultSettings(NamedTuple):
-    javascript: str
-    html_template: Path
-    stylesheet: Path
-    title: str
-    metafile: str
+DEFAULT_CONFIG = 
 
 
-DEFAULTS: Final = DefaultSettings(
-    javascript="""
-        <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-        <script>
-            var slideshow = remark.create({
-                ratio: '16:9',
-                slideNumberFormat: '(%current%/%total%)',
-                countIncrementalSlides: false,
-                highlightLines: true
-            });
-        </script>
-    """,
-    html_template=Path(resource_filename(PKG_NAME, 'templates/default.html')),
-    stylesheet=Path(resource_filename(PKG_NAME, "templates/default.css")),
-    title='Premark Presentation',
-    metafile='sections.yaml',
-)
+javascript = """
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+    <script>
+        var slideshow = remark.create({
+            ratio: '16:9',
+            slideNumberFormat: '(%current%/%total%)',
+            countIncrementalSlides: false,
+            highlightLines: true
+        });
+    </script>
+"""
 
 
 
@@ -60,8 +51,12 @@ class Presentation:
     def __init__(
         self,
         markdown: Union[str, Path],
-        html_template: Union[str, Path] = DEFAULTS.html_template,
-        stylesheet: Union[str, Path] = DEFAULTS.stylesheet,
+        remark_args = None,
+        html_template: Union[str, Path] = None,
+        stylesheet: Union[str, Path] = None,
+        title: str = None,
+        metafile: str = None,
+        config_file: Union[str, Path, None] = None,
     ):
         '''
         Create a new Presentation.
@@ -81,17 +76,21 @@ class Presentation:
             interpreted as a file containing the CSS. If a string, is interpreted as the
             literal CSS code.
         '''
-        if isinstance(markdown, Path):
-            markdown = markdown.read_text()
-        if isinstance(html_template, Path):
-            html_template = html_template.read_text()
-        if isinstance(stylesheet, Path):
-            stylesheet = stylesheet.read_text()
-        self.markdown = markdown
-        self.html_template = html_template
-        self.stylesheet = stylesheet
+        raw_config = {
+            'remark_args': remark_args,
+            'html_template': html_template,
+            'stylesheet': stylesheet,
+            'title': title,
+            'metafile': metafile
+        }
+        explicit_config = PartialConfig({
+            key: val for key, val in raw_config.items()
+            if val is not None
+        })
+        file_config = PartialConfig.from_file(config_file)
+        defaults = PartialConfig.from_file(resource_filename('premark', 'config.yaml'))
 
-    def to_html(self, title: str = DEFAULTS.title) -> str:
+    def to_html(self, title: str = None) -> str:
         '''
         Convert the presentation to HTML.
 
@@ -107,12 +106,12 @@ class Presentation:
         '''
         template = Template(self.html_template)
         stylesheet_html = f"<style>\n{self.stylesheet}\n</style>"
-        return template.render(
-            title=title,
-            markdown=self.markdown,
-            stylesheet=stylesheet_html,
-            js=DEFAULTS.javascript,
-        )
+        #return template.render(
+        #    title=title,
+        #    markdown=self.markdown,
+        #    stylesheet=stylesheet_html,
+        #    js=DEFAULTS.javascript,
+        #)
 
     def __add__(self, other: 'Presentation') -> 'Presentation':
         '''Concatenate presentations.'''
@@ -166,7 +165,7 @@ class Presentation:
     def from_directory(
         cls,
         directory: Union[str, Path],
-        metafile: str = DEFAULTS.metafile,
+        metafile: str = None,
     ) -> 'Presentation':
         '''
         Create a slideshow from multiple markdown files in a folder.
