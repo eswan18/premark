@@ -1,32 +1,23 @@
 from pathlib import Path
 from dataclasses import dataclass
-from typing import Union, Optional, List, Dict, TypedDict, Final
+from typing import Any, Union, Optional, Type, Iterator
+from typing import Protocol, runtime_checkable, TypeVar
 
 import yaml
 
 from .presentation import Presentation
 
 
-SectionList = List[Dict[str, str]]
+P = TypeVar('P', bound='_PartialConfig')
 
-# Define some TypedDicts to specify what configuration dictionaries look like.
-class ConfigDict(TypedDict):
-    source: Path
-    sections: Optional[SectionList] # Only set if source is a folder
-    css_file: Path
-    html_template_file: Path
-    output_file: Optional[Path] # If unset, output becomes stdout
 
-class TotalConfigDict(TypedDict, total=True):
-    source: Path
-    sections: Optional[SectionList] # Only set if source is a folder
-    css_file: Path
-    html_template_file: Path
-    output_file: Optional[Path] # If unset, output becomes stdout
-    
+@runtime_checkable
+class Readable(Protocol):
+    def read(self) -> Union[str, bytes]: ...
 
-c: ConfigDict = {'source': Path('.'), 'sections': None, 'css_file': Path('.'), 'html_template_file': Path('.')}
-d: TotalConfigDict = {'source': Path('.'), 'sections': None, 'css_file': Path('.'), 'html_template_file': Path('.')}
+
+SectionList = list[dict[str, str]]
+
 
 @dataclass
 class SectionDefinition:
@@ -38,7 +29,7 @@ class SectionDefinition:
         # Assume files without suffixes that don't exist should be .md files.
         if '.' not in str(self.file) and not self.file.exists():
             new_file = self.file.with_suffix('.md')
-            logger.info(f'Inferring .md suffix: changing {self.file} to {new_file}')
+            #logger.info(f'Inferring .md suffix: changing {self.file} to {new_file}')
             self.file = new_file
 
     def should_autotitle(self):
@@ -60,36 +51,44 @@ class SectionDefinition:
         return Presentation(markdown)
 
 
-class Configuration:
+class _PartialConfig:
 
     def __init__(
         self,
-        config_dict: ConfigDict,
-        force_valid: bool =True
+        config_dict: dict[str, Any],
     ):
         self._config_dict = config_dict
-        self.validate(raise_=force_valid)
 
     @classmethod
-    def load(
-        cls,
-        file: Union[Path, str],
-        cli_args: ConfigDict
-    ) -> 'Configuration':
-        # File should be a yaml file or the contents of one
-        if isinstance(file, Path):
-            file = file.read_text()
-        raw_conf = yaml.load(file, Loader=yaml.SafeLoader)
-        raw_conf.update(cli_args)
-        return raw_conf # Mypy will likely yell because we don't know what's in the config file
-
-    def validate(self, raise_=True):
-        ... # What's it mean to be valid?
-        raise NotImplementedError
-        if not valid:
-            if raise_:
-                raise TypeError('Invalid configuration specified')
-            else:
-                return False
+    def from_file(
+        cls: Type[P],
+        file: Union[Readable, Path, str],
+    ) -> P:
+        '''
+        Generate a config from a file or a path to a file.
+        '''
+        if isinstance(file, Readable):
+            contents = file.read()
         else:
-            return True
+            if isinstance(file, str):
+                file = Path(file)
+            contents = file.read_text()
+        return cls.from_yaml(contents)
+
+    @classmethod
+    def from_yaml(
+        cls: Type[P],
+        _yaml: Union[str, bytes],
+        /
+    ) -> P:
+        '''
+        Generate a config from a string or bytes of valid yaml.
+        '''
+        conf = yaml.load(_yaml, Loader=yaml.SafeLoader)
+        return cls(conf)
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._config_dict)
+
+    def __getitem__(self, key: str) -> Any:
+        return self._config_dict[key]
