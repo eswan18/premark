@@ -1,21 +1,13 @@
 import logging
-from pkg_resources import resource_filename
 from pathlib import Path
-from typing import Any, Union, Mapping, Type, Iterator
-from typing import Protocol, runtime_checkable, TypeVar
+from typing import Any, Union, Mapping, Type, Iterator, TypeVar
 
 import yaml
 
+from .utils import pkg_file, FileCoercible, contents_of_file_coercible
+
 
 P = TypeVar('P', bound='PartialConfig')
-
-def pkg_file(path: str) -> str:
-    return resource_filename('premark', path)
-
-
-@runtime_checkable
-class Readable(Protocol):
-    def read(self) -> Union[str, bytes]: ...
 
 
 logger = logging.getLogger(__name__)
@@ -42,17 +34,12 @@ class PartialConfig:
     @classmethod
     def from_file(
         cls: Type[P],
-        file: Union[Readable, Path, str],
+        file: FileCoercible,
     ) -> P:
         '''
         Generate a config from a file or a path to a file.
         '''
-        if isinstance(file, Readable):
-            contents = file.read()
-        else:
-            if isinstance(file, str):
-                file = Path(file)
-            contents = file.read_text()
+        contents = contents_of_file_coercible(file)
         return cls.from_yaml(contents)
 
     @classmethod

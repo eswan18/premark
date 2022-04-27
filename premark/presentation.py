@@ -1,62 +1,37 @@
-import sys
 from functools import reduce
 from operator import add
-from pathlib import Path
 import logging
-from typing import Union, List, Iterable, NamedTuple, Optional
-from pkg_resources import resource_filename
-from dataclasses import dataclass
-from pkg_resources import resource_filename
+from pathlib import Path
+from collections import ChainMap
+from typing import Any, Union, List, Iterable, Optional, Mapping
 from .configuration import PartialConfig
 
 from jinja2 import Template
 import yaml
 
-if sys.version_info >= (3, 8):
-    from typing import Final
-else:
-    from typing_extensions import Final
+from .utils import pkg_file, FileCoercible, contents_of_file_coercible
+
 
 PKG_NAME = 'premark'
 logger = logging.getLogger(__name__)
 
 
-DEFAULT_CONFIG = 
-
-
-javascript = """
-    <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
-    <script>
-        var slideshow = remark.create({
-            ratio: '16:9',
-            slideNumberFormat: '(%current%/%total%)',
-            countIncrementalSlides: false,
-            highlightLines: true
-        });
-    </script>
-"""
-
-
-
-
-
 class Presentation:
     '''
-    An unrendered RemarkJS presentation.
+    A RemarkJS presentation.
     '''
     markdown: str
-    html_template: str
-    stylesheet_template: str
+    config: Mapping[str, Any]
 
     def __init__(
         self,
-        markdown: Union[str, Path],
-        remark_args = None,
-        html_template: Union[str, Path] = None,
-        stylesheet: Union[str, Path] = None,
-        title: str = None,
-        metafile: str = None,
-        config_file: Union[str, Path, None] = None,
+        markdown: FileCoercible,
+        remark_args: Optional[dict[str, Union[str, bool]]] = None,
+        html_template: FileCoercible = None,
+        stylesheet: FileCoercible = None,
+        title: Optional[str] = None,
+        metafile: FileCoercible = None,
+        config_file: FileCoercible = None,
     ):
         '''
         Create a new Presentation.
@@ -67,28 +42,62 @@ class Presentation:
             The markdown from which to render the presentations. If a Path object, is
             interpreted as a file containing the markdown. If a string, is interpreted
             as the literal markdown.
+        remark_args
+            The arguments to pass to `remark.create` in the generated javascript.
         html_template
-            The HTML in which to insert the markdown. If a Path object, is interpreted
-            as a file containing the HTML. If a string, is interpreted as the literal
-            HTML.
+            The file containing HTML (and javascript) in which to insert the markdown.
         stylesheet
-            The CSS to include in the eventual rendered HTML. If a Path object, is
-            interpreted as a file containing the CSS. If a string, is interpreted as the
-            literal CSS code.
+            The file containing CSS to include in the eventual rendered HTML.
+        title
+            The title of the presentation.
+        metafile
+            The file containing the presentation definition.
+        config_file
+            A yaml file containing some or all of the above config options.
         '''
-        raw_config = {
+        if isinstance(markdown, str):
+            self.markdown = markdown
+        else:
+            self.markdown = contents_of_file_coercible(markdown)
+        args = {
             'remark_args': remark_args,
             'html_template': html_template,
             'stylesheet': stylesheet,
             'title': title,
             'metafile': metafile
         }
-        explicit_config = PartialConfig({
-            key: val for key, val in raw_config.items()
+        arg_config = PartialConfig({
+            key: val for key, val in args.items()
             if val is not None
         })
-        file_config = PartialConfig.from_file(config_file)
-        defaults = PartialConfig.from_file(resource_filename('premark', 'config.yaml'))
+        if config_file is not None:
+            file_config = PartialConfig.from_file(config_file)
+        else:
+            file_config = PartialConfig({})
+        default_config = PartialConfig.from_file(pkg_file('config.yaml'))
+        # Store configs in order of priority.
+        self.config = ChainMap(arg_config, file_config, default_config)
+
+    # Provide some properties to make access of configuration easier.
+    @property
+    def remark_args(self) -> dict[str, Union[str, bool]]:
+        return self.config['remark_args']
+
+    @property
+    def html_template(self) -> FileCoercible:
+        return self.config['html_template']
+
+    @property
+    def stylesheet(self) -> FileCoercible:
+        return self.config['stylesheet']
+
+    @property
+    def title(self) -> str:
+        return self.config['title']
+
+    @property
+    def metafile(self) -> FileCoercible:
+        return self.config['metafile']
 
     def to_html(self, title: str = None) -> str:
         '''
@@ -106,12 +115,12 @@ class Presentation:
         '''
         template = Template(self.html_template)
         stylesheet_html = f"<style>\n{self.stylesheet}\n</style>"
-        #return template.render(
-        #    title=title,
-        #    markdown=self.markdown,
-        #    stylesheet=stylesheet_html,
-        #    js=DEFAULTS.javascript,
-        #)
+        return template.render(
+            title=self.title,
+            markdown=self.markdown,
+            stylesheet=stylesheet_html,
+            remark_args=self.remark_args,
+        )
 
     def __add__(self, other: 'Presentation') -> 'Presentation':
         '''Concatenate presentations.'''
@@ -119,12 +128,12 @@ class Presentation:
             return NotImplemented
         html_matches = (self.html_template == other.html_template)
         style_matches = (self.stylesheet == other.stylesheet)
-        if html_matches and style_matches:
+        remark_matches = (self.remark_args == other.remark_args)
+        if html_matches and style_matches and remark_matches:
             merged_markdown = self.markdown + '\n---\n' + other.markdown
             return self.__class__(
                 markdown=merged_markdown,
-                html_template=self.html_template,
-                stylesheet=self.stylesheet,
+                **self.config
             )
         else:
             msg = ('Cannot concatenate presentations unless they have the same HTML and'
@@ -184,6 +193,7 @@ class Presentation:
         Presentation
             A new presentation based on the files in the input directory
         '''
+        raise NotImplementedError
         if not isinstance(directory, Path):
             directory = Path(directory)
         metafile_path = directory / metafile
