@@ -6,10 +6,6 @@ import yaml
 
 from .utils import pkg_file, FileCoercible, contents_of_file_coercible
 
-if TYPE_CHECKING:
-    ConfigChainMap = ChainMap[str, Any]
-else:
-    ConfigChainMap = ChainMap
 
 P = TypeVar('P', bound='PartialConfig')
 
@@ -72,3 +68,6 @@ class PartialConfig:
 
     def __getitem__(self, key: str) -> Any:
         return self._config_map[key]
+
+    def __len__(self) -> int:
+        return len(self._config_map)

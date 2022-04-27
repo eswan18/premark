@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from collections import ChainMap
 from typing import Any, Union, List, Iterable, Optional, Mapping
-from .configuration import PartialConfig
+from .config import PartialConfig
 
 from jinja2 import Template
 import yaml
@@ -74,7 +74,7 @@ class Presentation:
             file_config = PartialConfig.from_file(config_file)
         else:
             file_config = PartialConfig({})
-        default_config = PartialConfig.from_file(pkg_file('config.yaml'))
+        default_config = PartialConfig.from_file(pkg_file('default_config.yaml'))
         # Store configs in order of priority.
         self.config = ChainMap(arg_config, file_config, default_config)
 

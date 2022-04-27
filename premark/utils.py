@@ -1,6 +1,6 @@
 from pkg_resources import resource_filename
 from pathlib import Path
-from typing import runtime_checkable, Protocol
+from typing import runtime_checkable, Protocol, Union
 
 
 @runtime_checkable
