@@ -21,8 +21,8 @@ class PartialConfig:
     ):
         def sub_pkg_name(s: str) -> Any:
             '''Replace {{premark}} with the package path.'''
-            if isinstance(s, str) and s.startswith('{{premark}}'):
-                updated = pkg_file(s.replace('{{premark}}', ''))
+            if isinstance(s, str) and s.startswith('{{premark}}/'):
+                updated = pkg_file(s.replace('{{premark}}/', ''))
                 logger.debug('Replacing config value %s with %s', s, updated)
                 return updated
             return s
