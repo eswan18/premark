@@ -11,12 +11,14 @@ class Readable(Protocol):
 FileCoercible = Union[str, Path, Readable]
 
 
-def contents_of_file_coercible(f: FileCoercible) -> Union[str, bytes]:
+def contents_of_file_coercible(f: FileCoercible) -> str:
     if isinstance(f, Readable):
         contents = f.read()
+        if isinstance(contents, bytes):
+            raise TypeError('File-like objects must contain string, not bytes')
     else:
         if isinstance(f, str):
-            f = Path(file)
+            f = Path(f)
         contents = f.read_text()
     return contents
 

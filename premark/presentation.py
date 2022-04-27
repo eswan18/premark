@@ -113,7 +113,7 @@ class Presentation:
         str
             An HTML rendering of the presentation.
         '''
-        template = Template(self.html_template)
+        template = Template(contents_of_file_coercible(self.html_template))
         stylesheet_html = f"<style>\n{self.stylesheet}\n</style>"
         return template.render(
             title=self.title,
