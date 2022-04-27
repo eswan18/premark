@@ -6,6 +6,10 @@ import yaml
 
 from .utils import pkg_file, FileCoercible, contents_of_file_coercible
 
+if TYPE_CHECKING:
+    ConfigChainMap = ChainMap[str, Any]
+else:
+    ConfigChainMap = ChainMap
 
 P = TypeVar('P', bound='PartialConfig')
 

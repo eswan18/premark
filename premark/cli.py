@@ -5,54 +5,65 @@ import pathlib
 
 import click
 
-from .presentation import Presentation, DEFAULTS
+from .presentation import Presentation
+from .configuration import get_config_from_file, get_config_from_dict, CONFIG_DEFAULTS
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_CONFIG_FILE = 'premark.yaml'
 
-@click.argument(
-    "slide-source",
-    type=click.Path(exists=True, file_okay=True, dir_okay=True),
+
+
+@click.version_option()
+@click.option(
+    "--css",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    help="Custom CSS to be included inline",
 )
 @click.option(
-    "--html-template",
-    type=click.Path(exists=True),
-    help="Jinja2 template file for the presentation.",
+    "--js",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    help="Custom JavaScript to be embedded in the HTML",
 )
 @click.option(
-    "--css-file",
-    "-c",
-    type=click.Path(exists=True),
-    help="Custom CSS to be included inline.",
+    "--html",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    help="Custom Jinja2 HTML template for the presentation",
 )
+@click.option("--verbose", "-v", is_flag=True, help="Output debugging info.")
+@click.option("--title", "-t", help="HTML title of the presentation")
 @click.option(
-    "--metafile",
-    "-m",
-    help=("File definition for the order of section stitching. Only needed if using a "
-          "sections folder.")
-)
-@click.option(
-    "--output-file",
+    "--outfile",
     "-o",
     type=click.File("wt", encoding="utf8"),
     default=sys.stdout,
     help="Write the output to a file instead of STDOUT.",
 )
-@click.option("--title", "-t", help="HTML title of the presentation.")
-@click.option("--verbose", "-v", is_flag=True, help="Output debugging info.")
-@click.version_option()
+@click.option(
+    "--source",
+    "-s", 
+    type=click.Path(exists=True, file_okay=True, dir_okay=True),
+    help="Path of source markdown file or folder",
+)
+@click.option(
+    "--config",
+    "-c",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    help="Path of Premark configuration file",
+)
 @click.command()
 def premark(
-    slide_source: str,
-    html_template: Optional[str],
-    metafile: Optional[str],
-    css_file: Optional[str],
-    output_file: TextIO,
+    config: Optional[str],
+    source: Optional[str],
+    outfile: TextIO,
     title: Optional[str],
     verbose: bool,
+    html: Optional[str],
+    js: Optional[str],
+    css: Optional[str],
 ) -> None:
     '''
-    Generate a Remark.js HTML presentation from input Markdown and optional custom CSS.
+    Generate a Remark.js HTML presentation from input markdown.
     '''
     if verbose:
         click.echo("Input:", err=True)
