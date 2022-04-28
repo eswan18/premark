@@ -114,7 +114,8 @@ class Presentation:
             An HTML rendering of the presentation.
         '''
         template = Template(contents_of_file_coercible(self.html_template))
-        stylesheet_html = f"<style>\n{self.stylesheet}\n</style>"
+        styles = contents_of_file_coercible(self.stylesheet)
+        stylesheet_html = f"<style>\n{styles}\n</style>"
         return template.render(
             title=self.title,
             markdown=self.markdown,
