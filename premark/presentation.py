@@ -3,12 +3,13 @@ from operator import add
 import logging
 from pathlib import Path
 from collections import ChainMap
+import json
 from typing import Any, Union, List, Iterable, Optional, Mapping
-from .config import PartialConfig
 
 from jinja2 import Template
 import yaml
 
+from .config import PartialConfig
 from .utils import pkg_file, FileCoercible, contents_of_file_coercible
 
 
@@ -116,11 +117,12 @@ class Presentation:
         template = Template(contents_of_file_coercible(self.html_template))
         styles = contents_of_file_coercible(self.stylesheet)
         stylesheet_html = f"<style>\n{styles}\n</style>"
+        remark_args = json.dumps(self.remark_args)
         return template.render(
             title=self.title,
             markdown=self.markdown,
             stylesheet=stylesheet_html,
-            remark_args=self.remark_args,
+            remark_args=remark_args,
         )
 
     def __add__(self, other: 'Presentation') -> 'Presentation':
