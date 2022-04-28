@@ -2,7 +2,7 @@ from collections import namedtuple
 from pathlib import Path
 
 from premark import Presentation
-from .comparison import assert_html_equiv
+from .utils.comparison import assert_html_equiv
 
 DATA_DIR = Path(__file__).parent / "data"
 CUSTOM_CSS = DATA_DIR / "custom.css"
