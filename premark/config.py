@@ -1,5 +1,6 @@
 import logging
 from typing import Any, Union, Mapping, Type, Iterator, TypeVar
+from typing import ItemsView, KeysView, ValuesView
 
 import yaml
 
@@ -12,7 +13,7 @@ P = TypeVar('P', bound='PartialConfig')
 logger = logging.getLogger(__name__)
 
 
-class PartialConfig:
+class PartialConfig(Mapping[str, Any]):
 
     def __init__(
         self,
@@ -53,13 +54,13 @@ class PartialConfig:
         conf = yaml.load(_yaml, Loader=yaml.SafeLoader)
         return cls(conf)
 
-    def items(self) -> Iterator[tuple[str, Any]]:
+    def items(self) -> ItemsView[str, Any]:
         return self._config_map.items()
 
-    def keys(self) -> Iterator[str]:
+    def keys(self) -> KeysView[str]:
         return self._config_map.keys()
 
-    def values(self) -> Iterator[Any]:
+    def values(self) -> ValuesView[Any]:
         return self._config_map.values()
 
     def __iter__(self) -> Iterator[str]:

@@ -6,7 +6,7 @@ import pathlib
 import click
 
 from .presentation import Presentation
-from .configuration import get_config_from_file, get_config_from_dict, CONFIG_DEFAULTS
+from .config import get_config_from_file, get_config_from_dict, CONFIG_DEFAULTS
 
 logger = logging.getLogger(__name__)
 
