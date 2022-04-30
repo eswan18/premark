@@ -82,8 +82,10 @@ class Presentation:
             # Need to make sure source is path or str.
             if not isinstance(source, (str, Path)):
                 cls_name = type(source).__name__
-                msg = ('Unexpected type for `source` arg, got "{cls_name}" but expected'
-                       ' str or pathlib.Path because `sections` is specified in config')
+                msg = (
+                    f'Unexpected type for `source` arg, got "{cls_name}" but expected '
+                    'str or pathlib.Path because `sections` is specified in config'
+                )
                 raise TypeError(msg)
             if not Path(source).is_dir():
                 msg = ('`source` arg must be a directory of markdown files if '
