@@ -11,9 +11,9 @@ DEFAULT_SLIDES_PATH = DATA_DIR / "default_slides.md"
 DEFAULT_OUTPUT = SNAPSHOT_DIR / "default.html"
 SECTIONS_DIR = DATA_DIR / "sections"
 SECTION_OUTPUT = SNAPSHOT_DIR / "sections.html"
+ALTERNATIVE_SECTION_OUTPUT = SNAPSHOT_DIR / "alternative_sections.html"
 CUSTOM_CSS_PATH = DATA_DIR / "custom.css"
 CUSTOM_CSS_OUTPUT = SNAPSHOT_DIR / "with_custom_css.html"
-ALTERNATIVE_SECTION_OUTPUT = DATA_DIR / "alternative_section_output.html"
 
 
 def test_default_output():
@@ -36,18 +36,33 @@ def test_from_presentations():
 
 def test_multi_section():
     '''
-    Multiple markdown files in a folder can be loaded as a single presentaiton.
+    Multiple markdown files in a folder can be loaded as a single presentation.
     '''
     prez = Presentation(SECTIONS_DIR, config_file=SECTIONS_DIR / 'sections.yaml')
     actual = prez.to_html()
     expected = SECTION_OUTPUT.read_text()
     assert_html_equiv(actual, expected)
 
+
+def test_alternative_multi_section():
+    '''
+    Multiple markdown files in a folder can be loaded as a single presentation.
+    '''
+    prez = Presentation(SECTIONS_DIR, config_file=SECTIONS_DIR / 'alternative_sections.yaml')
+    actual = prez.to_html()
+    expected = ALTERNATIVE_SECTION_OUTPUT.read_text()
+    assert_html_equiv(actual, expected)
+
+
 def test_with_custom_css():
     '''
     Custom CSS is inserted as expected.
     '''
-    prez = Presentation(DEFAULT_SLIDES_PATH, stylesheet=CUSTOM_CSS_PATH, title='Check out this Style')
+    prez = Presentation(
+        DEFAULT_SLIDES_PATH,
+        stylesheet=CUSTOM_CSS_PATH,
+        title='Check out this Style'
+    )
     actual = prez.to_html()
     expected = CUSTOM_CSS_OUTPUT.read_text()
     assert_html_equiv(actual, expected)

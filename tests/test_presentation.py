@@ -1,9 +1,7 @@
 from pathlib import Path
 
-import pytest
-
 from premark import Presentation
-from .utils.comparison import assert_html_equiv
+
 
 DATA_DIR = Path(__file__).parent / "data"
 CUSTOM_CSS = DATA_DIR / "custom.css"
@@ -24,7 +22,3 @@ def test_equality():
     assert default_prez == Presentation(DEFAULT_SLIDES_PATH)
     custom_css_prez = Presentation(DEFAULT_SLIDES_PATH, stylesheet=CUSTOM_CSS)
     assert default_prez != custom_css_prez
-
-
-
-
