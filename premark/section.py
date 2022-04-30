@@ -1,17 +1,16 @@
-from typing import Optional, Union
+from typing import Optional, Union, TypedDict
 from pathlib import Path
-from dataclasses import dataclass
 
 from .utils import contents_of_file_coercible
 
 
-@dataclass
-class FullSectionEntry:
+
+class FullSectionEntry(TypedDict):
     '''
     The metadata representing a section of a multi-part presentation.
     '''
-    filename: str
-    title: Optional[str] = None
+    file: str
+    title: Optional[str]
 
 
 SectionFilename = str
@@ -37,8 +36,10 @@ class Section:
             filename = entry
             title = None
         else:
-            filename = entry.filename
-            title = entry.title
+            filename = entry.get('file', None)
+            if filename is None:
+                raise TypeError('`file` field must be specified for section entries.')
+            title = entry.get('title', None)
         if parent_dir is not None:
             parent_dir = Path(parent_dir)
             filename = parent_dir / filename

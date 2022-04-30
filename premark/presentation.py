@@ -77,7 +77,7 @@ class Presentation:
         default_config = PartialConfig.from_file(pkg_file('default_config.yaml'))
         # Store configs in order of priority.
         self.config = ChainMap(arg_config, file_config, default_config)
-        
+
         # Create or simply store the underlying markdown.
         if 'sections' in self.config:
             if source is None or not Path(source).is_dir():
@@ -187,83 +187,3 @@ class Presentation:
         '''
         # Because '+' is overloaded to concatenate, this merges the inputs.
         return reduce(add, presentations)
-
-    @classmethod
-    def from_directory(
-        cls,
-        directory: Union[str, Path],
-        metafile: Optional[FileCoercible] = 'metafile.yaml',
-    ) -> 'Presentation':
-        '''
-        Create a slideshow from multiple markdown files in a folder.
-
-        Parameters
-        ----------
-        directory
-            The directory where the markdown files are stored. Should be a Path object
-            or a string that can be treated as a path.
-        metafile
-            The file that defines the order in which to stitch together the markdown
-            files. If path is passed as a string, will be interpreted relative to the
-            directory argument. If a Path or File object, will be read directly.
-
-        Returns
-        -------
-        Presentation
-            A new presentation based on the files in the input directory
-        '''
-        raise NotImplemented
-        if not isinstance(directory, Path):
-            directory = Path(directory)
-        if isinstance(metafile, str):
-            metafile = directory / metafile
-
-        meta = contents_of_file_coercible(metafile)
-        metadata = yaml.load(meta, Loader=yaml.SafeLoader)
-        # The should contain a dictionary with a 'sections' key, the value of which is a
-        # list of dictionaries, along with optional additional keys 'html_template' and
-        # 'stylesheet'.
-        try:
-            sections = metadata['sections']
-        except (KeyError, TypeError) as exc:
-            msg = "Expected to find 'sections' heading in metafile"
-            raise KeyError(msg) from exc
-        if 'html_template' in metadata:
-            html_template = Path(metadata['html_template'])
-        else:
-            html_template = DEFAULTS.html_template
-        if 'stylesheet' in metadata:
-            stylesheet = Path(metadata['stylesheet'])
-        else:
-            stylesheet = DEFAULTS.stylesheet
-        # If we have a list of {'file': str} pairs (vs just a list of strings), we need
-        # to extract the filenames.
-        if isinstance(sections[0], dict):  # metadata is List[Dict[str, str]]
-            try:
-                section_defs = [
-                    SectionDefinition(
-                        file=(directory / entry['file']),
-                        title=entry.get('title'),
-                        autotitle=entry.get('autotitle')
-                    )
-                    for entry in sections
-                ]
-            except KeyError:
-                msg = 'Section entries must contain a "file" key'
-                raise KeyError(msg)
-        else:  # sections is List[str], hopefully
-            section_defs = [SectionDefinition(directory / s) for s in sections]
-        # Check the files exist and then stitch them together.
-        section_num = 1
-        presentations: List[Presentation] = []
-        for section in section_defs:
-            if section.should_autotitle():
-                prez = section.make_presentation(section_num)
-                section_num += 1
-            else:
-                prez = section.make_presentation()
-            presentations.append(prez)
-        final_prez = Presentation.from_presentations(presentations)
-        final_prez.html_template = Path(html_template).read_text()
-        final_prez.stylesheet = Path(stylesheet).read_text()
-        return final_prez
