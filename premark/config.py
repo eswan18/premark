@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Union, Mapping, Type, Iterator, TypeVar
+from typing import Any, Union, MutableMapping, Mapping, Type, Iterator, TypeVar
 from typing import ItemsView, KeysView, ValuesView
 
 import yaml
@@ -13,7 +13,7 @@ P = TypeVar('P', bound='PartialConfig')
 logger = logging.getLogger(__name__)
 
 
-class PartialConfig(Mapping[str, Any]):
+class PartialConfig(MutableMapping[str, Any]):
 
     def __init__(
         self,
@@ -68,6 +68,12 @@ class PartialConfig(Mapping[str, Any]):
 
     def __getitem__(self, key: str) -> Any:
         return self._config_map[key]
+
+    def __setitem__(self, key: str, value: Any):
+        self._config_map[key] = value
+
+    def __delitem__(self, key: str):
+        del self._config_map[key]
 
     def __len__(self) -> int:
         return len(self._config_map)
