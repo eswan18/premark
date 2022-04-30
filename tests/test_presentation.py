@@ -24,7 +24,7 @@ def test_str_and_path_md_is_same():
     p1 = Presentation(DEFAULT_SLIDES)
     with open(DEFAULT_SLIDES, 'r') as f:
         slide_md = f.read()
-    p2 = Presentation(slide_md)
+    p2 = Presentation(markdown=slide_md)
     assert p1 == p2
 
 
@@ -53,9 +53,8 @@ def test_from_presentations():
     assert_html_equiv(actual, expected)
 
 
-@pytest.mark.xfail
-def test_from_directory():
-    final = Presentation.from_directory(SECTIONS_DIR)
+def test_multi_section():
+    final = Presentation(source=SECTIONS_DIR, config_file='sections.yaml')
     actual = final.to_html()
     expected = SECTION_OUTPUT.read_text()
     assert_html_equiv(actual, expected)
