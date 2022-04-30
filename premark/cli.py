@@ -1,29 +1,22 @@
 import sys
 import logging
 from typing import Optional, TextIO
-import pathlib
 
 import click
 
 from .presentation import Presentation
-from .config import get_config_from_file, get_config_from_dict, CONFIG_DEFAULTS
+
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_CONFIG_FILE = 'premark.yaml'
 
 
-
 @click.version_option()
 @click.option(
-    "--css",
+    "--stylesheet",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
     help="Custom CSS to be included inline",
-)
-@click.option(
-    "--js",
-    type=click.Path(exists=True, file_okay=True, dir_okay=False),
-    help="Custom JavaScript to be embedded in the HTML",
 )
 @click.option(
     "--html",
@@ -41,7 +34,7 @@ DEFAULT_CONFIG_FILE = 'premark.yaml'
 )
 @click.option(
     "--source",
-    "-s", 
+    "-s",
     type=click.Path(exists=True, file_okay=True, dir_okay=True),
     help="Path of source markdown file or folder",
 )
@@ -59,54 +52,37 @@ def premark(
     title: Optional[str],
     verbose: bool,
     html: Optional[str],
-    js: Optional[str],
-    css: Optional[str],
+    stylesheet: Optional[str],
 ) -> None:
     '''
     Generate a Remark.js HTML presentation from input markdown.
     '''
     if verbose:
         click.echo("Input:", err=True)
-        click.echo("slide-source: {}".format(slide_source), err=True)
-        click.echo("html-template: {}".format(html_template), err=True)
-        click.echo("css-file: {}".format(css_file), err=True)
-        click.echo("Output file: {}".format(output_file), err=True)
-    log_str = ('premark running with arguments: slide-source: %s; html-template: %s;'
-               'css-file: %s; output-file: %s')
-    logger.debug(log_str, slide_source, html_template, css_file, output_file)
-
-    # Users can pass a single slides markdown file or a directory of several "sections"
-    # to be stitched together.
-    slide_source_path = pathlib.Path(slide_source)
-    if slide_source_path.is_dir():
-        if css_file or html_template or title:
-            msg = ('If `slide-source` is a directory, none of `css_file`, '
-                   '`html_template`, or `title` may be specified')
-            raise click.ClickException(msg)
-        metafile = metafile or DEFAULTS.metafile
-        p = Presentation.from_directory(slide_source_path, metafile)
-    else:
-        if metafile:
-            msg = 'If `slide-source` is a file, `metafile` may not be specified'
-            raise click.ClickException(msg)
-        if html_template:
-            html_template_path = pathlib.Path(html_template)
-        else:
-            html_template_path = DEFAULTS.html_template
-        if css_file:
-            css_file_path = pathlib.Path(css_file)
-        else:
-            css_file_path = DEFAULTS.stylesheet
-        p = Presentation(
-            slide_source_path,
-            html_template=html_template_path,
-            stylesheet=css_file_path
-        )
-
-    title = title or DEFAULTS.title
-    output_html = p.to_html(title=title)
-    output_file.write(output_html)
+        click.echo("source: {}".format(source), err=True)
+        click.echo("html template: {}".format(html), err=True)
+        click.echo("stylesheet: {}".format(stylesheet), err=True)
+        click.echo("config: {}".format(config), err=True)
+        click.echo("output file: {}".format(outfile), err=True)
+    logger.debug(
+        'premark cli running with arguments: slide-source: %s; html-template: %s;'
+        'stylesheet: %s; config: %s; output-file: %s',
+        source,
+        html,
+        stylesheet,
+        config,
+        outfile,
+    )
+    prez = Presentation(
+        source,
+        html_template=html,
+        stylesheet=stylesheet,
+        title=title,
+        config_file=config
+    )
+    output_html = prez.to_html(title=title)
+    outfile.write(output_html)
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     premark()
