@@ -54,7 +54,7 @@ def test_from_presentations():
 
 
 def test_multi_section():
-    final = Presentation(source=SECTIONS_DIR, config_file='sections.yaml')
+    final = Presentation(source=SECTIONS_DIR, config_file=SECTIONS_DIR / 'sections.yaml')
     actual = final.to_html()
     expected = SECTION_OUTPUT.read_text()
     assert_html_equiv(actual, expected)
