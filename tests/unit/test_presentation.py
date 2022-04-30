@@ -3,7 +3,7 @@ from pathlib import Path
 from premark import Presentation
 
 
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR = Path(__file__).parent.parent / "data"
 CUSTOM_CSS = DATA_DIR / "custom.css"
 DEFAULT_SLIDES_PATH = DATA_DIR / "default_slides.md"
 WITH_CUSTOM_CSS = DATA_DIR / "with_custom_css.html"
