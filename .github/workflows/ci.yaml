@@ -18,7 +18,7 @@ jobs:
           pip install -e .[lint]
       - name: Run flake8
         run:
-          flake8 premark tests
+          python -m flake8 premark tests
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest
@@ -34,7 +34,7 @@ jobs:
         pip install -e .[typecheck]
     - name: Run mypy
       run:
-        mypy premark tests
+        python -m mypy premark
   test:
     name: Test All
     runs-on: ubuntu-latest
