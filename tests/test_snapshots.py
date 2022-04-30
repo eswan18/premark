@@ -48,7 +48,10 @@ def test_alternative_multi_section():
     '''
     Multiple markdown files in a folder can be loaded as a single presentation.
     '''
-    prez = Presentation(SECTIONS_DIR, config_file=SECTIONS_DIR / 'alternative_sections.yaml')
+    prez = Presentation(
+        SECTIONS_DIR,
+        config_file=SECTIONS_DIR / 'alternative_sections.yaml'
+    )
     actual = prez.to_html()
     expected = ALTERNATIVE_SECTION_OUTPUT.read_text()
     assert_html_equiv(actual, expected)

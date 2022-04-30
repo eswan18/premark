@@ -4,10 +4,9 @@ import logging
 from pathlib import Path
 from collections import ChainMap
 import json
-from typing import Any, Union, List, Iterable, Optional, Mapping
+from typing import Any, Union, Iterable, Optional, Mapping
 
 from jinja2 import Template
-import yaml
 
 from .config import PartialConfig
 from .section import Section

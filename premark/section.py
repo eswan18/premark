@@ -4,7 +4,6 @@ from pathlib import Path
 from .utils import contents_of_file_coercible
 
 
-
 class FullSectionEntry(TypedDict):
     '''
     The metadata representing a section of a multi-part presentation.
@@ -15,6 +14,7 @@ class FullSectionEntry(TypedDict):
 
 SectionFilename = str
 SectionEntry = Union[SectionFilename, FullSectionEntry]
+
 
 class Section:
 
