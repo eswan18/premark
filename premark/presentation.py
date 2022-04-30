@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from collections import ChainMap
 import json
-from typing import Any, Union, List, Iterable, Optional, Mapping
+from typing import Any, Union, List, Iterable, Optional, Mapping, TypedDict
 
 from jinja2 import Template
 import yaml
@@ -17,21 +17,30 @@ PKG_NAME = 'premark'
 logger = logging.getLogger(__name__)
 
 
+class SectionEntry(TypedDict):
+    '''
+    The metadata representing a section of a multi-part presentation.
+    '''
+    filename: str
+    title: str
+
+
 class Presentation:
     '''
     A RemarkJS presentation.
     '''
+    source: str
     markdown: str
     config: Mapping[str, Any]
 
     def __init__(
         self,
-        markdown: FileCoercible,
+        source: Optional[FileCoercible] = None,
+        markdown: Optional[str] = None,
         remark_args: Optional[dict[str, Union[str, bool]]] = None,
         html_template: FileCoercible = None,
         stylesheet: FileCoercible = None,
         title: Optional[str] = None,
-        metafile: FileCoercible = None,
         config_file: FileCoercible = None,
     ):
         '''
@@ -39,10 +48,12 @@ class Presentation:
 
         Parameters
         ----------
+        source
+            The file or folder containing markdown from which to render the
+            presentations. If a Path object, is interpreted as a file containing the
+            markdown. Cannot be passed if `markdown` is specified.
         markdown
-            The markdown from which to render the presentations. If a Path object, is
-            interpreted as a file containing the markdown. If a string, is interpreted
-            as the literal markdown.
+            Literal markdown to render. Cannot be passed if `source` is specified.
         remark_args
             The arguments to pass to `remark.create` in the generated javascript.
         html_template
@@ -51,21 +62,17 @@ class Presentation:
             The file containing CSS to include in the eventual rendered HTML.
         title
             The title of the presentation.
-        metafile
-            The file containing the presentation definition.
         config_file
             A yaml file containing some or all of the above config options.
         '''
-        if isinstance(markdown, str):
-            self.markdown = markdown
-        else:
-            self.markdown = contents_of_file_coercible(markdown)
+        if (source and markdown) or (not source and not markdown):
+            msg = 'Exactly one of `source` and `markdown` args must be passed.'
+            raise ValueError(msg)
         args = {
             'remark_args': remark_args,
             'html_template': html_template,
             'stylesheet': stylesheet,
             'title': title,
-            'metafile': metafile
         }
         arg_config = PartialConfig({
             key: val for key, val in args.items()
@@ -78,6 +85,22 @@ class Presentation:
         default_config = PartialConfig.from_file(pkg_file('default_config.yaml'))
         # Store configs in order of priority.
         self.config = ChainMap(arg_config, file_config, default_config)
+        # If there is a `sections` key in the config, we have a multi-part presentation to stitch together.
+        if 'sections' in self.config:
+            if source is None or not Path(source).is_dir():
+                msg = ('`source` arg must be a directory of markdown files if '
+                       '`sections` is specified in config.')
+                raise TypeError(msg)
+            self.markdown = markdown_from_section_data(source, self.config['sections'])
+        elif source:
+            try:
+                self.markdown = contents_of_file_coercible(source)
+            except IsADirectoryError as exc:
+                msg = ('`source` arg must be a file if `sections` is not specified in '
+                       'config.`')
+                raise TypeError(msg) from exc
+        else:
+            self.markdown = markdown
 
     # Provide some properties to make access of configuration easier.
     @property
@@ -95,10 +118,6 @@ class Presentation:
     @property
     def title(self) -> str:
         return self.config['title']
-
-    @property
-    def metafile(self) -> FileCoercible:
-        return self.config['metafile']
 
     def to_html(self, title: str = None) -> str:
         '''
@@ -177,7 +196,7 @@ class Presentation:
     def from_directory(
         cls,
         directory: Union[str, Path],
-        metafile: str = None,
+        metafile: Optional[FileCoercible] = 'metafile.yaml',
     ) -> 'Presentation':
         '''
         Create a slideshow from multiple markdown files in a folder.
@@ -188,25 +207,22 @@ class Presentation:
             The directory where the markdown files are stored. Should be a Path object
             or a string that can be treated as a path.
         metafile
-            The name of the file in that directory that defines the order in which to
-            stitch together the markdown files.
+            The file that defines the order in which to stitch together the markdown
+            files. If path is passed as a string, will be interpreted relative to the
+            directory argument. If a Path or File object, will be read directly.
 
         Returns
         -------
         Presentation
             A new presentation based on the files in the input directory
         '''
-        raise NotImplementedError
         if not isinstance(directory, Path):
             directory = Path(directory)
-        metafile_path = directory / metafile
+        if isinstance(metafile, str):
+            metafile = directory / metafile
 
-        try:
-            with open(metafile_path, 'rt') as f:
-                metadata = yaml.load(f, Loader=yaml.SafeLoader)
-        except FileNotFoundError as exc:
-            msg = f'metafile "{metafile}" not found in directory'
-            raise ValueError(msg) from exc
+        meta = contents_of_file_coercible(metafile)
+        metadata = yaml.load(meta, Loader=yaml.SafeLoader)
         # The should contain a dictionary with a 'sections' key, the value of which is a
         # list of dictionaries, along with optional additional keys 'html_template' and
         # 'stylesheet'.
