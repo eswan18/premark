@@ -32,18 +32,19 @@ class Section:
         entry: SectionEntry,
         parent_dir: Union[Path, str, None] = None,
     ) -> 'Section':
+        file: Union[Path, str]
         if isinstance(entry, str):
-            filename = entry
+            file = entry
             title = None
         else:
-            filename = entry.get('file', None)
-            if filename is None:
+            if 'file' not in entry:
                 raise TypeError('`file` field must be specified for section entries.')
+            file = entry['file']
             title = entry.get('title', None)
         if parent_dir is not None:
             parent_dir = Path(parent_dir)
-            filename = parent_dir / filename
-        return cls(filename=filename, title=title)
+            file = parent_dir / file
+        return cls(filename=file, title=title)
 
     def markdown(self):
         md = contents_of_file_coercible(self.filename)
