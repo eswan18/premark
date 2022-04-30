@@ -33,16 +33,14 @@ DEFAULT_CONFIG_FILE = 'premark.yaml'
     help="Write the output to a file instead of STDOUT.",
 )
 @click.option(
-    "--source",
-    "-s",
-    type=click.Path(exists=True, file_okay=True, dir_okay=True),
-    help="Path of source markdown file or folder",
-)
-@click.option(
     "--config",
     "-c",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
     help="Path of Premark configuration file",
+)
+@click.argument(
+    'source',
+    type=click.Path(exists=True, file_okay=True, dir_okay=True),
 )
 @click.command()
 def premark(
@@ -55,7 +53,7 @@ def premark(
     stylesheet: Optional[str],
 ) -> None:
     '''
-    Generate a Remark.js HTML presentation from input markdown.
+    Generate a Remark.js HTML presentation from input markdown SOURCE.
     '''
     if verbose:
         click.echo("Input:", err=True)
