@@ -25,7 +25,10 @@ clean-test:
 	rm -fr htmlcov/
 
 lint:
-	flake8 premark tests
+	python -m flake8 premark tests
+
+typecheck:
+	python -m mypy premark
 
 test:
 	pytest --cov premark --cov-report html
