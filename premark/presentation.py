@@ -4,25 +4,17 @@ import logging
 from pathlib import Path
 from collections import ChainMap
 import json
-from typing import Any, Union, List, Iterable, Optional, Mapping, TypedDict
+from typing import Any, Union, List, Iterable, Optional, Mapping
 
 from jinja2 import Template
 import yaml
 
 from .config import PartialConfig
+from .section import Section
 from .utils import pkg_file, FileCoercible, contents_of_file_coercible
 
 
-PKG_NAME = 'premark'
 logger = logging.getLogger(__name__)
-
-
-class SectionEntry(TypedDict):
-    '''
-    The metadata representing a section of a multi-part presentation.
-    '''
-    filename: str
-    title: str
 
 
 class Presentation:
@@ -85,13 +77,17 @@ class Presentation:
         default_config = PartialConfig.from_file(pkg_file('default_config.yaml'))
         # Store configs in order of priority.
         self.config = ChainMap(arg_config, file_config, default_config)
-        # If there is a `sections` key in the config, we have a multi-part presentation to stitch together.
+        
+        # Create or simply store the underlying markdown.
         if 'sections' in self.config:
             if source is None or not Path(source).is_dir():
                 msg = ('`source` arg must be a directory of markdown files if '
                        '`sections` is specified in config.')
                 raise TypeError(msg)
-            self.markdown = markdown_from_section_data(source, self.config['sections'])
+            self.markdown = '\n---\n'.join(
+                Section.from_entry(s, parent_dir=source).markdown()
+                for s in self.config['sections']
+            )
         elif source:
             try:
                 self.markdown = contents_of_file_coercible(source)
@@ -216,6 +212,7 @@ class Presentation:
         Presentation
             A new presentation based on the files in the input directory
         '''
+        raise NotImplemented
         if not isinstance(directory, Path):
             directory = Path(directory)
         if isinstance(metafile, str):
