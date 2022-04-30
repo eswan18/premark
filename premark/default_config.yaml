@@ -6,4 +6,3 @@ remark_args:
 html_template: "{{premark}}/templates/default.html"
 stylesheet: "{{premark}}/templates/default.css"
 title: Premark Presentation
-metafile: sections.yaml
