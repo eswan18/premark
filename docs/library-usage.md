@@ -16,123 +16,148 @@ class: center, middle
 p = Presentation(markdown=my_markdown)
 
 # Render the presentation as HTML
-html = p.to_html(title='My Presentation')
+html = p.to_html()
 # You probably want to save the HTML to a file
 with open('prez.html', 'w') as f:
     f.write(html)
 ```
 
-### Creating Presentations
+## Creating Presentations
 
-There are three ways of creating a new `Presentation` object:
+There are three ways of creating a new presentation:
+1. Passing a markdown source file.
+2. Passing a directory of markdown source files.
+3. Passing literal markdown text.
 
-#### Through the standard initializer
+### 1. From a single markdown file
 
 ```
-p = Presentation(markdown)
+p = Presentation('path/to/markdown.md')
 ```
 This is the simplest approach.
-The markdown provided can be either a string of raw markdown or a `pathlib.Path` object pointing to a file containing the markdown.
-You may optionally provide `html_template` and `stylesheet` arguments for custom HTML and CSS respectively.
+The argument may be a string, a `pathlib.Path`, or a file-like object (one supporting a `read()` method).
+
+### 2. From a directory of markdown files
 
 ```
-p = Presentation(markdown, html_template, stylesheet)
+p = Presentation('path/to/markdown_directory', config_file='conf.yaml')
 ```
 
-The final presentation will include the passed-in markdown with no modifications.
-
-[API docs](api.html#premark.presentation.Presentation)
-
-#### From a directory of markdown files
-
+When passing a directory as the source, a configuration file (in YAML) is required.
+In this file you must specify the order in which to combine your markdown files.
+For example:
+```yaml
+sections:
+- intro.md
+- section_1.md
+- section_2.md
+- conclusion.md
 ```
-p = Presentation.from_directory(directory)
+
+All of these files must exist inside the source directory.
+
+A more verbose syntax in the `sections` configuration can unlock more Premark features.
+By specifying sections using both `file` and `title`, Premark will automatically include a title slide before each new section.
+
+```yaml
+sections:
+- file: intro.md
+  title: Introduction
+- file: section_1.md
+  title: The Interface of My Project
+- file: section_2.md
+  title: The Implementation of My Project
+- file: conclusion.md
+  title: Wrapping Up
 ```
 
-This is how Premark supports "stitching" multiple individual presentations together as sections of a larger presentation.
-The directory must contain a metadata file defining the order in which the sections should be combined, along with whether each should have a title automatically added.
-For example, a slide directory might like this :
+### 3. From literal markdown
+
+Premark can accommodate markdown already stored in a string.
+Pass it using the `markdown` keyword argument.
+
+```python
+md = '# Welcome\n---## Agenda\n1. Content'
+p = Presentation(markdown=md)
+```
+
+
+
+## Customizing Presentations
+
+As seen above, literal markdown or a file source is required when creating a new presentation.
+Other parameters are optional, but can be very useful for customizing your rendered slides.
+
+Parameters:
+- `html_template` (str, Path, or file-like) -- A file containing a custom HTML Jinja template into which the title, markdown, stylesheet, and remark arguments should be inserted, overriding the default one. (All those fields are expected to be present in the template, e.g. `{{ title }}`)
+- `stylesheet` (str, Path, or file-like) -- A file containing the CSS styles to insert into the presentation, overriding the default one.
+- `title` (str) -- The title of the rendered presentation. Has no impact on the slides themslves but is inserted in the HTML title tag.
+- `remark_args` (dict) -- the arguments to pass to `remark.create`, overriding the defaults.
+
+For full documentation of the available arguments when creating `Presentation`s, see the [API docs](api.html#premark.presentation.Presentation).
+
+
+## Config Files
+
+While -- except for section ordering and titling -- all presentation customization can be done without a separate config file, using config files is well worth it when working on presentations that you intend to rebuild repeatedly.
+In such cases, leaving a `config.yaml` in the directory allows you to version control your Premark configuration.
+
+If the `config_file` argument is passed to `Presentation`, that file is read and its values used as configuration *unless* the same value was also passed as an argument.
+(Explicit arguments always take priority.)
+Additionally, the ordering of multiple presentation "sections" can *only* be specified via a config file.
+
+Your config file might look like this:
+```yaml
+sections:
+- intro.md
+- agenda.md
+- main_content.md
+- closing.md
+title: The Best Slideshow
+stylesheet: assets/styles.css
+```
+
+Along with (or instead of) `stylesheet` and `title`, `html_template` is also an accepted argument.
+
+
+## Laying Out Your Project
+
+In most cases, if you're using Premark, you have one or several markdown files containing slides and those live in a project folder of some sort -- and that project is in version control.
+A good layout in such cases is to keep your config file in the base of the repo and name it `premark.yaml`, and your slides in an `premark_slides` folder.
+If you have custom HTML or CSS files, put them in an `premark_assets/` folder.
 
 ```text
-slide_sections
-├── agenda.md
-├── closing.md
-├── exercises.md
-├── intro.md
-├── main_content.md
-└── sections.yaml
+myproject
+├── premark.yaml
+├── premark_assets
+├   ├── template.html
+├   └── styles.css
+└── premark_slides
+    ├── agenda.md
+    ├── closing.md
+    ├── exercises.md
+    ├── intro.md
+    └── main_content.md
 ```
 
-And the contents of `sections.yaml` like this:
+And the contents of `premark.yaml` might look like this:
 
 ```yaml
-# sections.yaml
 sections:
 - file: intro.md
 - file: agenda.md
 - file: main_content.md
 - file: closing.md
 - file: exercises.md
+stylesheet: premark_assets/styles.css
+html_template: premark_assets/template.html
+title: A Wild Ride
 ```
 
-Then `Presentation.from_directory('./slide_sections')` will build a combined presentation with the contents of intro.md, agenda.md, main_content.md, closing.md, and exercises.md (in that order).
+With this format, you can store Premark presentations in the same folder as related projects.
+This may not be necessary in most cases, but this kind of organization is very handy occasionally.
 
-
-By default, the metadata file is expected to be named `sections.yaml`, but this can be customized by passing a different string as the `metafile` argument of `from_directory`:
-
-```python
-# If the metafile is actually at slide_sections/stich_order.yaml
-Presentation.from_directory('./slide_sections', metafile='stitch_order.yaml')
-```
-
-Note that the metadata file must always be in the same directory as the individual slide files, and must be in yaml format.
-
-For any section that has an additional "title" key in the metadata file, Premark will automatically add a section title slide along with a section number.
-You can mix titled and untitled sections in the same metadata file.
-
-```yaml
-# sections.yaml
-sections:
-- file: intro.md
-- file: agenda.md
-  title: Agenda
-- file: main_content.md
-  title: "Today's Main Content"
-- file: closing.md
-  title: Wrap-up
-- file: exercises.md
-```
-
-Invoked this way, Premark will add lead slides to the agenda, main_content, and closing sections.
-Those slides have a section number and title, and will have the `center` and `middle` classes applied (so the text is centered on the slide).
-```markdown
-class: center, middle
-
-## #3
-# Wrap-up
-```
-
-Sections without an automatic title slide aren't counted by Remark -- so here, *Agenda* is #1, *Today's Main Content* is #2, and *Wrap-up* is #3.
-But if the agenda section didn't have a title key in the metadata file, then *Today's Main Content* would be #1 and *Wrap-up* would be #2.
-
-[API docs](api.html#premark.presentation.Presentation.from_directory)
-
-#### From a collection of other Presentation objects
-
-If you prefer to provide several `Presentation` objects yourself and have Premark join them together, simply pass an iterable of them to `Presentation.from_presentations`:
-
-```python
-prez_1 = Presentation(...)
-prez_2 = Presentation(...)
-prez_3 = Presentation(...)
-
-final_prez = Presentation.from_presentations([prez_1, prez_2, prez_3])
-```
-
-[API docs](api.html#premark.presentation.Presentation.from_presentations)
-
-
-### Exporting Presentations
+## Exporting Presentations (i.e. *Rendering*)
 
 There's only one format for exporting presentations: HTML.
 The `.to_html` method performs the conversion for you:
@@ -142,13 +167,6 @@ p = Presentation(...)
 html = p.to_html()
 ```
 
-You may optionally provide a `title` argument to `to_html`, which will become the contents of the `<title>` tag in the result.
-(It has no effect on the contents of the slides themselves.)
-
-```
-html = p.to_html(title='Lecture 1')
-```
-
-If no title is provided, the default is "Premark Presentation".
+That's it!
 
 [API docs](api.html#premark.presentation.Presentation.to_html)
