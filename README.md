@@ -26,3 +26,33 @@ Generate `presentation.html` from Markdown in `slides.md`:
 ```bash
 premark -o presentation.html slides.md
 ```
+
+You can also pass in a custom CSS file to style your presentation.
+
+```bash
+premark -o presentation.html --stylesheet style.css slides.md
+```
+
+### Creating a Presentation from Multiple Sections
+
+You may wish to build your presentation from multiple markdown files, each representing a "section" of the final slideshow.
+Premark supports this through the use of a configuration file, where you can specify the order of your sections.
+
+Say you have a folder `md_slides` containing individual sections `intro.md`, `section_1.md`, `section_2.md`, and `closing.md`.
+You could create a config file like the following:
+
+```yaml
+# config.yaml
+sections:
+- intro.md
+- section_1.md
+- section_2.md
+- closing.md
+```
+ 
+And then invoke Premark with
+```bash
+premark -c config.yaml -o slides.html md_slides
+```
+
+The resulting `slides.html` will contain all four sections.
