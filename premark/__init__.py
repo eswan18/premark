@@ -4,7 +4,7 @@ from .presentation import Presentation
 
 __author__ = "Dave Forgac, Ethan Swan"
 __email__ = "ethanpswan@gmail.com"
-__version__ = '0.1.1'
+__version__ = '0.1.4'
 
 
 __all__ = ["presentation", "Presentation", "__author__", "__email__", "__version__"]
