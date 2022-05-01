@@ -3,14 +3,28 @@ name: Publish Distributions to PyPI, Test and Prod
 on:
   workflow_run:
     workflows: ["CI"]
-    branches:
-      - main
-      - 'releases/**'
+    types:
+      - completed
+    tags:
+      - v*
 
 jobs:
+  check-branch:
+    # Taken from https://github.community/t/how-to-create-filter-on-both-tag-and-branch/16936/6
+    name: Check if tag on main branch
+    outputs:
+      on_main: ${{ steps.contains_tag.outputs.retval }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: rickstaa/action-contains-tag@v1
+        id: contains_tag
+        with:
+          reference: "main"
+          tag: "${{ github.ref }}"
   build-n-publish:
     runs-on: ubuntu-latest
-    # Only run job if the corresponding CI pipeline succeeded.
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Checkout Code
@@ -32,9 +46,13 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
           # In Test PyPI, we don't care about duplicate releases.
           skip_existing: true
+      - name: Debug
+        run: |
+          echo "Are we on main?"
+          echo ${{ needs.check-branch.outputs.on_main == 'true' }}
       - name: Publish Distribution to PyPI
         # Only publish to *real* PyPI if this commit has a tag.
         if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          password: nonsense to fail #${{ secrets.PYPI_API_TOKEN }}
