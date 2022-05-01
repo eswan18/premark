@@ -125,14 +125,9 @@ class Presentation:
     def title(self) -> str:
         return self.config['title']
 
-    def to_html(self, title: str = None) -> str:
+    def to_html(self) -> str:
         '''
         Convert the presentation to HTML.
-
-        Parameters
-        ----------
-        title
-            The name to be used in the title tag in the resulting HTML.
 
         Returns
         -------

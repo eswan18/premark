@@ -78,7 +78,7 @@ def premark(
         title=title,
         config_file=config
     )
-    output_html = prez.to_html(title=title)
+    output_html = prez.to_html()
     outfile.write(output_html)
 
 
