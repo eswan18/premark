@@ -47,51 +47,48 @@ Ready to contribute? Here's how to set up Premark for local development.
 1. Fork the [Premark repo](https://github.com/eswan18/premark) on GitHub.
 
 2. Clone your fork locally:
-```bash
-$ git clone https://github.com/your_name_here/premark.git
-```
+    ```bash
+    $ git clone https://github.com/your_name_here/premark.git
+    ```
 
 3. Install your local copy into a venv.
-You'll Python 3.7 or above for this step.
-Once you've `cd`ed into the base folder of the repository, follow these stups to get a venv set up for development on Premark:
-```bash
-$ python3 -m venv .venv
+You'll Python 3.9 or above for this step.
+Once you've `cd`ed into the base folder of the repository, follow these steps to get a venv set up for development on Premark:
+    ```bash
+    $ python3 -m venv .venv
 
-# Necessary for editable installs of a pyproject.toml codebase.
-$ pip install --upgrade pip
+    # Necessary for editable installs of a pyproject.toml codebase.
+    $ pip install --upgrade pip
 
-$ . .venv/bin/activate
+    $ . .venv/bin/activate
 
-$ pip install -e ".[dev]"
-```
+    $ pip install -e ".[dev]"
+    ```
 
 4. Create a branch for local development:
-
-```bash
-$ git checkout -b name-of-your-bugfix-or-feature
-```
-Now you can make your changes locally.
+    ```bash
+    $ git checkout -b name-of-your-bugfix-or-feature
+    ```
+    Now you can make your changes locally.
 
 5. Make your changes (update code, add tests, change docs, etc.).
 
 6. When you're done making changes, check that your changes pass flake8, mypy, and the tests, including testing all supported Python versions with via tox:
-
-```bash
-$ flake8 premark tests
-$ mypy premark
-$ pytest
-$ tox
-```
+    ```bash
+    $ flake8 premark tests
+    $ mypy premark
+    $ pytest
+    $ tox
+    ```
 
 7. Commit your changes and push your branch to GitHub:
+    ```bash
+    $ git add .
+    $ git commit -m "Your detailed description of your changes."
+    $ git push origin name-of-your-bugfix-or-feature
+    ```
 
-```bash
-$ git add .
-$ git commit -m "Your detailed description of your changes."
-$ git push origin name-of-your-bugfix-or-feature
-```
-
-7. Submit a pull request (to the develop branch of the original Premark repo) through the GitHub website.
+8. Submit a pull request (to the develop branch of the original Premark repo) through the GitHub website.
 
 ## Pull Request Guidelines
 
@@ -100,5 +97,5 @@ Before you submit a pull request, check that it meets these guidelines:
 1. The PR should include new or updated tess for any functionality that has been changed.
 2. New functions and classes should have descriptive docstrings adhering to the style of the rest of the package.
 3. The CHANGELOG.md file should be updated with an account of your changes.
-4. The code should work for Python versions 3.7 and above. Check and make sure that the tests pass for all supported Python versions.
+4. The code should work for Python versions 3.9 and above. Check and make sure that the tests pass for all supported Python versions.
 
