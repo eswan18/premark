@@ -15,7 +15,7 @@ Then, install Premark using it:
 pipx install premark
 ```
 
-## Installation Without pipx
+## Installation via pip (or other package manager)
     
 If you prefer install Premark in a single Python environment, you can just use pip:
 
