@@ -9,7 +9,6 @@ on:
 
 jobs:
   build-n-publish:
-    name: Build and Publish Distributions to PyPI
     runs-on: ubuntu-latest
     # Only run job if the corresponding CI pipeline succeeded.
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -33,6 +32,10 @@ jobs:
           repository_url: https://test.pypi.org/legacy/
           # In Test PyPI, we don't care about duplicate releases.
           skip_existing: true
+      - name: debug
+        run:
+          echo "GitHub Ref"
+          echo ${{ github.ref }}
       - name: Publish Distribution to PyPI
         # Only publish to *real* PyPI if this commit has a tag.
         if: startsWith(github.ref, 'refs/tags')
