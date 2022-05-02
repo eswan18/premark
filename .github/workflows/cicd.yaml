@@ -64,8 +64,7 @@ jobs:
     name: Publish, if Needed
     needs: [lint, typecheck, test]
     runs-on: ubuntu-latest
-    # Only run if triggered by a tag.
-    if: startswith(github.ref, 'refs/tags')
+    if: github.ref_type == 'tag'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
