@@ -91,10 +91,8 @@ class Presentation:
                 msg = ('`source` arg must be a directory of markdown files if '
                        '`sections` is specified in config.')
                 raise TypeError(msg)
-            self.markdown = '\n---\n'.join(
-                Section.from_entry(s, parent_dir=source).markdown()
-                for s in self.config['sections']
-            )
+            sections = Section.from_entries(self.config['sections'], parent_dir=source)
+            self.markdown = '\n---\n'.join(s.markdown() for s in sections)
         elif source:
             try:
                 self.markdown = contents_of_file_coercible(source)
