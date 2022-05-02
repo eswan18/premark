@@ -59,9 +59,15 @@ jobs:
           pip install -e .[test]
       - name: Run pytest and Generate Coverage Report
         run:
-          pytest --cov-report=xml
-  publish:
-    name: Publish, if Needed
+         pytest --cov premark --cov-report xml
+      - name: Publish coverage
+        if: github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: true
+  publish-to-pypi:
+    name: Publish to PyPI, if Needed
     needs: [lint, typecheck, test]
     runs-on: ubuntu-latest
     if: github.ref_type == 'tag'
