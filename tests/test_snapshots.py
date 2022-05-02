@@ -12,6 +12,7 @@ DEFAULT_OUTPUT = SNAPSHOT_DIR / "default.html"
 SECTIONS_DIR = DATA_DIR / "sections"
 SECTION_OUTPUT = SNAPSHOT_DIR / "sections.html"
 ALTERNATIVE_SECTION_OUTPUT = SNAPSHOT_DIR / "alternative_sections.html"
+TITLED_SECTION_OUTPUT = SNAPSHOT_DIR / "titled_sections.html"
 CUSTOM_CSS_PATH = DATA_DIR / "custom.css"
 CUSTOM_CSS_OUTPUT = SNAPSHOT_DIR / "with_custom_css.html"
 
@@ -27,7 +28,7 @@ def test_from_presentations():
     # The following relies on the sections being "supposed to be" stitched together in
     # alphabetical order.
     final = Presentation.from_presentations(
-        Presentation(path) for path in SECTIONS_DIR.glob('*.md')
+        Presentation(path) for path in SECTIONS_DIR.glob('section_*.md')
     )
     actual = final.to_html()
     expected = SECTION_OUTPUT.read_text()
@@ -54,6 +55,19 @@ def test_alternative_multi_section():
     )
     actual = prez.to_html()
     expected = ALTERNATIVE_SECTION_OUTPUT.read_text()
+    assert_html_equiv(actual, expected)
+
+
+def test_titled_multi_section():
+    '''
+    Premark will create title slides for sections with a title field in their config.
+    '''
+    prez = Presentation(
+        SECTIONS_DIR,
+        config_file=SECTIONS_DIR / 'titled_sections.yaml'
+    )
+    actual = prez.to_html()
+    expected = TITLED_SECTION_OUTPUT.read_text()
     assert_html_equiv(actual, expected)
 
 

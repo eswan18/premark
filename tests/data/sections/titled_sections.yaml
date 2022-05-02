@@ -1,0 +1,7 @@
+sections:
+- file: prologue.md
+- file: section_a.md
+  title: The Letter A
+- file: section_b.md
+  title: The Letter B
+- file: epilogue.md
