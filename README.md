@@ -2,6 +2,7 @@
 
 [![CI/CD Status](https://github.com/eswan18/premark/actions/workflows/cicd.yaml/badge.svg)](https://github.com/eswan18/premark/actions/workflows/cicd.yaml)
 [![Docs Status](https://readthedocs.org/projects/premark/badge/?version=latest)](https://premark.readthedocs.io/en/latest/?badge=latest)
+[![codecov Status](https://codecov.io/gh/eswan18/premark/branch/main/graph/badge.svg?token=PCS1RGIS5D)](https://codecov.io/gh/eswan18/premark)
 
 Premark generates single-file HTML presentations from one or many markdown files, using [Remark.js](https://github.com/gnab/remark).
 Based on [Remarker](https://github.com/tylerdave/remarker) by [@tylerdave](https://github.com/tylerdave).
