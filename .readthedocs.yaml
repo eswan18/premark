@@ -1,8 +1,12 @@
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-# Required
+# RTD version is required
 version: 2
+  #
+# This can be removed once Python 3.9 is generally available in RTD
+build:
+  image: testing
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
@@ -12,7 +16,6 @@ sphinx:
 formats:
    - pdf
 
-# Optionally set the version of Python and requirements required to build your docs
 python:
    version: "3.9"
    install:
