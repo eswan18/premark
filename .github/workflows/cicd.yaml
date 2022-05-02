@@ -66,6 +66,7 @@ jobs:
         with:
           files: ./coverage.xml
           fail_ci_if_error: true
+          env_vars: PYTHON # Important because we're running tests for both 3.9 and 3.10
   publish-to-pypi:
     name: Publish to PyPI, if Needed
     needs: [lint, typecheck, test]
