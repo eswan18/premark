@@ -57,7 +57,7 @@ class Section:
             parent_dir = Path(parent_dir)
             file = parent_dir / file
         return cls(filename=file, title=title, should_number=should_number)
-    
+
     @classmethod
     def from_entries(
         cls,
@@ -92,7 +92,6 @@ class Section:
                 current_number += 1
             yield section
 
-
     def markdown(self, number: Optional[int] = None):
         md = contents_of_file_coercible(self.filename)
         if number is None:
@@ -103,10 +102,10 @@ class Section:
             numbering_line = '## \n'
         if self.title:
             return (
-                'class: center, middle\n' + 
-                numbering_line + 
-                f'# {self.title}\n' + 
-                '---\n' + 
+                'class: center, middle\n' +
+                numbering_line +
+                f'# {self.title}\n' +
+                '---\n' +
                 f'{md}'
             )
         else:
