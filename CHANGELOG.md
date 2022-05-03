@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.1.1
+
+- Fix section auto-numbering (see [#10](https://github.com/eswan18/premark/issues/10)).
+
 ## Version 0.1.0
 
 - Overhaul interface of both the CLI and the `Presentation` class.
