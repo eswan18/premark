@@ -99,7 +99,7 @@ class Section:
         if number is not None:
             numbering_line = f'## #{self.number}\n'
         else:
-            numbering_line = '## \n'
+            numbering_line = '\n'
         if self.title:
             return (
                 'class: center, middle\n' +
