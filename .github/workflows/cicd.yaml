@@ -90,7 +90,8 @@ jobs:
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
-          # In Test PyPI, we don't care about duplicate releases.
+          # Due to Workflows occasionally running twice, we just move on if the file
+          # already exists.
           skip_existing: true
       - name: Publish Distribution to PyPI
         # Only publish to *real* PyPI if this commit has a version (vX.X.X) tag.
@@ -98,3 +99,6 @@ jobs:
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
+          # Due to Workflows occasionally running twice, we just move on if the file
+          # already exists.
+          skip_existing: true
