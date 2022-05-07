@@ -1,6 +1,6 @@
 # Changelog
 
-# Version 0.1.2
+## Version 0.1.2
 
 - Update manifest file to include Premark's default configuration when the package is installed.
 
