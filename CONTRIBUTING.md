@@ -99,3 +99,8 @@ Before you submit a pull request, check that it meets these guidelines:
 3. The CHANGELOG.md file should be updated with an account of your changes.
 4. The code should work for Python versions 3.9 and above. Check and make sure that the tests pass for all supported Python versions.
 
+
+## Releasing a New Version
+
+The GitHub Actions pipeline is set up such that any Git tag starting with "v" will be built and published as a new version.
+Ideally, merge changes into `main` and tag that commit (`git tag -a v1.2.3`), then push to GitHub including tags (`git push origin main --tags`).
