@@ -1,0 +1,27 @@
+<html>
+    <link rel="stylesheet" href="https://pyscript.net/alpha/pyscript.css" />
+    <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+    <body>
+        <py-env>
+        - pandas
+        </py-env>
+
+        <py-script id="setup" output="python-status" output-mode="replace">
+import js
+print(3)
+js.document.getElementById('python-status').innerHTML += 'Ready for input!'
+        </py-script>
+
+        <div id="python-status">Python is currently starting.  Please wait...</div>
+
+        <py-repl id="input" output="output" autogenerate="true" output-mode="replace">
+import pandas as pd
+
+print(7)
+        </py-repl>
+
+        <div id="output" style="background-color:red;">
+        </div>
+
+    </body>
+</html>
