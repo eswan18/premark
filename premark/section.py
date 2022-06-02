@@ -102,7 +102,7 @@ class Section:
             numbering_line = '\n'
         if self.title:
             return (
-                'class: center, middle\n' +
+                'class: center, middle, premark-section-title\n' +
                 numbering_line +
                 f'# {self.title}\n' +
                 '---\n' +
